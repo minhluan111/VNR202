@@ -8,6 +8,7 @@ import {
   Check,
   ChevronDown,
   CircleHelp,
+  Clock3,
   Flag,
   Gamepad2,
   Gauge,
@@ -114,6 +115,17 @@ const pageItems = [
   ['presentation', 'Thuyết trình', BookOpen],
   ['quiz', 'Quiz', BrainCircuit],
   ['game', 'Game', Gamepad2],
+];
+
+const mascotOptions = [
+  { emoji: '🐯', name: 'Hổ dũng mãnh' },
+  { emoji: '🦅', name: 'Đại bàng' },
+  { emoji: '🐉', name: 'Rồng vàng' },
+  { emoji: '🐘', name: 'Voi chiến' },
+  { emoji: '🦁', name: 'Sư tử' },
+  { emoji: '🐺', name: 'Sói bạc' },
+  { emoji: '🐎', name: 'Tuấn mã' },
+  { emoji: '🐻', name: 'Gấu thép' },
 ];
 
 const presentationChapters = [
@@ -384,6 +396,190 @@ const gameScenarios = [
     ],
   },
 ];
+
+const wordGameQuestions = [
+  {
+    question: 'Theo luận điểm cốt lõi, thắng lợi năm 1954 là kết quả của điều gì?',
+    options: ['Một trận đánh bất ngờ', 'Sức mạnh tổng hợp được xây dựng qua nhiều năm', 'Viện trợ quốc tế', 'Ưu thế vũ khí'],
+    correct: 1,
+    fragment: 'TỔ CHỨC ĐÚNG ĐẮN,',
+  },
+  {
+    question: 'Đại hội đại biểu toàn quốc lần thứ II của Đảng diễn ra vào thời gian nào?',
+    options: ['Tháng 2/1951', 'Tháng 9/1952', 'Tháng 5/1953', 'Tháng 3/1954'],
+    correct: 0,
+    fragment: 'CHIẾN LƯỢC',
+  },
+  {
+    question: 'Kế hoạch Đông–Xuân 1953–1954 buộc quân Pháp phải làm gì?',
+    options: ['Rút hoàn toàn khỏi Đông Dương', 'Tập trung ở Hà Nội', 'Phân tán lực lượng để đối phó', 'Đầu hàng ngay lập tức'],
+    correct: 2,
+    fragment: 'CHỦ ĐỘNG, LINH HOẠT',
+  },
+  {
+    question: 'Điểm yếu quyết định của tập đoàn cứ điểm Điện Biên Phủ là gì?',
+    options: ['Không có pháo binh', 'Phụ thuộc tiếp tế đường không', 'Không có quân cơ động', 'Thiếu công sự'],
+    correct: 1,
+    fragment: 'VÀ',
+  },
+  {
+    question: 'Phương châm tác chiến cuối cùng tại Điện Biên Phủ là gì?',
+    options: ['Đánh nhanh, thắng nhanh', 'Vây điểm, diệt viện', 'Đánh chắc, tiến chắc', 'Phòng ngự chủ động'],
+    correct: 2,
+    fragment: 'HẬU PHƯƠNG',
+  },
+  {
+    question: 'Phương tiện thô sơ nào trở thành biểu tượng của hậu cần chiến dịch?',
+    options: ['Thuyền độc mộc', 'Xe ngựa', 'Xe đạp thồ', 'Xe kéo tay'],
+    correct: 2,
+    fragment: 'VỮNG MẠNH',
+  },
+  {
+    question: 'Chiến dịch Điện Biên Phủ diễn ra trong bao nhiêu ngày đêm?',
+    options: ['36 ngày đêm', '46 ngày đêm', '56 ngày đêm', '66 ngày đêm'],
+    correct: 2,
+    fragment: 'TẠO NÊN CHIẾN THẮNG',
+  },
+  {
+    question: 'Chiến thắng ngày 7/5/1954 gắn với địa danh nào?',
+    options: ['Việt Bắc', 'Biên Giới', 'Hòa Bình', 'Điện Biên Phủ'],
+    correct: 3,
+    fragment: 'ĐIỆN BIÊN PHỦ.',
+  },
+];
+
+const teamQuotes = [
+  {
+    quote: 'Tất cả cho tiền tuyến, tất cả để chiến thắng.',
+    fragments: ['TẤT', 'CẢ', 'CHO', 'TIỀN', 'TUYẾN,', 'TẤT', 'CẢ', 'ĐỂ', 'CHIẾN', 'THẮNG.'],
+    shuffle: [4, 1, 8, 0, 6, 3, 9, 2, 7, 5],
+  },
+  {
+    quote: 'Thà hy sinh tất cả chứ nhất định không chịu mất nước, nhất định không chịu làm nô lệ.',
+    fragments: ['THÀ HY SINH', 'TẤT CẢ', 'CHỨ NHẤT ĐỊNH', 'KHÔNG CHỊU', 'MẤT NƯỚC,', 'NHẤT ĐỊNH', 'KHÔNG CHỊU', 'LÀM', 'NÔ', 'LỆ.'],
+    shuffle: [6, 2, 9, 0, 4, 7, 1, 8, 5, 3],
+  },
+  {
+    quote: 'Mỗi người làm việc bằng hai, vì miền Nam ruột thịt.',
+    fragments: ['MỖI NGƯỜI', 'LÀM', 'VIỆC', 'BẰNG', 'HAI,', 'VÌ', 'MIỀN', 'NAM', 'RUỘT', 'THỊT.'],
+    shuffle: [7, 3, 0, 8, 5, 2, 9, 1, 6, 4],
+  },
+  {
+    quote: 'Không có gì quý hơn độc lập, tự do!',
+    fragments: ['KHÔNG', 'CÓ', 'GÌ', 'QUÝ', 'HƠN', 'ĐỘC', 'LẬP,', 'TỰ', 'DO', '!'],
+    shuffle: [5, 0, 8, 3, 6, 1, 9, 4, 2, 7],
+  },
+];
+
+const teamQuestionSets = [
+  [
+    { question: 'Luận điểm cốt lõi xác định thắng lợi năm 1954 là kết quả của điều gì?', options: ['Một trận đánh đơn lẻ', 'Sức mạnh tổng hợp được tích lũy', 'Viện trợ quốc tế', 'Ưu thế vũ khí'], correct: 1 },
+    { question: 'Cách mạng Trung Quốc giành thắng lợi vào năm nào?', options: ['1945', '1947', '1949', '1951'], correct: 2 },
+    { question: 'Chiến dịch nào năm 1950 giúp căn cứ Việt Bắc được nối liền với quốc tế?', options: ['Việt Bắc', 'Biên giới', 'Hòa Bình', 'Tây Bắc'], correct: 1 },
+    { question: 'Đại hội đại biểu toàn quốc lần thứ II diễn ra khi nào?', options: ['02/1951', '05/1952', '09/1953', '03/1954'], correct: 0 },
+    { question: 'Đại hội II được tổ chức tại huyện nào?', options: ['Định Hóa', 'Chiêm Hóa', 'Võ Nhai', 'Sơn Dương'], correct: 1 },
+    { question: 'Đại hội II có bao nhiêu đại biểu chính thức?', options: ['118', '138', '158', '178'], correct: 2 },
+    { question: 'Năm 1951, Đảng ra hoạt động công khai với tên gọi nào?', options: ['Đảng Cộng sản Đông Dương', 'Đảng Lao động Việt Nam', 'Đảng Dân chủ Việt Nam', 'Đảng Cộng sản Việt Nam'], correct: 1 },
+    { question: 'Ai được bầu làm Chủ tịch Đảng tại Đại hội II?', options: ['Trường Chinh', 'Phạm Văn Đồng', 'Hồ Chí Minh', 'Võ Nguyên Giáp'], correct: 2 },
+    { question: 'Cuộc vận động nào được tiến hành trong năm 1952?', options: ['Chỉnh Đảng, chỉnh quân', 'Cải cách giáo dục', 'Thi đua sản xuất', 'Đồng khởi'], correct: 0 },
+    { question: 'Luật Cải cách ruộng đất được Quốc hội thông qua vào thời điểm nào?', options: ['Đầu năm 1951', 'Giữa năm 1952', 'Cuối năm 1953', 'Sau tháng 7/1954'], correct: 2 },
+  ],
+  [
+    { question: 'Tướng Henri Navarre được cử sang Đông Dương vào thời gian nào?', options: ['02/1951', '05/1953', '09/1953', '01/1954'], correct: 1 },
+    { question: 'Kế hoạch Nava dự kiến xoay chuyển cục diện trong bao lâu?', options: ['6 tháng', '12 tháng', '18 tháng', '24 tháng'], correct: 2 },
+    { question: 'Pháp tập trung bao nhiêu trong tổng số 84 tiểu đoàn cơ động ở đồng bằng Bắc Bộ?', options: ['34', '44', '54', '64'], correct: 1 },
+    { question: 'Kế hoạch tác chiến Đông–Xuân 1953–1954 được đề ra vào tháng nào?', options: ['05/1953', '07/1953', '09/1953', '12/1953'], correct: 2 },
+    { question: 'Ta lựa chọn tiến công vào những hướng như thế nào?', options: ['Nơi địch mạnh nhất', 'Nơi địch tương đối yếu', 'Chỉ ở đồng bằng', 'Chỉ ở ven biển'], correct: 1 },
+    { question: 'Quân Pháp bị buộc phải phân tán lực lượng ra bao nhiêu nơi?', options: ['Ba', 'Bốn', 'Năm', 'Sáu'], correct: 2 },
+    { question: 'Địa điểm nào sau đây là một trong năm nơi quân Pháp phải phân tán?', options: ['Điện Biên Phủ', 'Hải Phòng', 'Huế', 'Sài Gòn'], correct: 0 },
+    { question: 'Kết quả bước đầu của tiến công Đông–Xuân là gì?', options: ['Kế hoạch Nava được củng cố', 'Ý đồ tập trung quân bị phá sản', 'Ta mất quyền chủ động', 'Pháp rút khỏi Đông Dương'], correct: 1 },
+    { question: 'Pháp chiếm Điện Biên Phủ bằng hình thức nào?', options: ['Đổ bộ đường biển', 'Hành quân bộ', 'Nhảy dù', 'Tấn công đường sông'], correct: 2 },
+    { question: 'Tập đoàn cứ điểm Điện Biên Phủ có khoảng bao nhiêu quân?', options: ['10.200', '13.200', '16.200', '20.200'], correct: 2 },
+  ],
+  [
+    { question: 'Điện Biên Phủ được tổ chức thành bao nhiêu cứ điểm?', options: ['39', '49', '59', '69'], correct: 1 },
+    { question: 'Tập đoàn cứ điểm được chia thành bao nhiêu phân khu?', options: ['Hai', 'Ba', 'Bốn', 'Năm'], correct: 1 },
+    { question: 'Điểm yếu quyết định của Điện Biên Phủ là gì?', options: ['Không có pháo', 'Phụ thuộc tiếp tế đường không', 'Không có công sự', 'Thiếu bộ binh'], correct: 1 },
+    { question: 'Sân bay nào giữ vai trò tiếp tế chính cho Điện Biên Phủ?', options: ['Gia Lâm', 'Cát Bi', 'Mường Thanh', 'Nà Sản'], correct: 2 },
+    { question: 'Bộ Chính trị quyết định mở Chiến dịch Điện Biên Phủ vào ngày nào?', options: ['06/12/1953', '13/03/1954', '30/03/1954', '07/05/1954'], correct: 0 },
+    { question: 'Ai là Tư lệnh kiêm Bí thư Đảng ủy Mặt trận?', options: ['Trường Chinh', 'Võ Nguyên Giáp', 'Phạm Văn Đồng', 'Hoàng Văn Thái'], correct: 1 },
+    { question: 'Phương châm tác chiến ban đầu là gì?', options: ['Đánh chắc, tiến chắc', 'Đánh nhanh, giải quyết nhanh', 'Vây điểm, diệt viện', 'Tiến công lâu dài'], correct: 1 },
+    { question: 'Phương châm tác chiến cuối cùng là gì?', options: ['Đánh nhanh, thắng nhanh', 'Phòng ngự tích cực', 'Đánh chắc, tiến chắc', 'Đánh điểm, diệt viện'], correct: 2 },
+    { question: 'Biện pháp nào giúp quân ta từng bước tiến sát các cứ điểm?', options: ['Đào hệ thống chiến hào', 'Xây sân bay', 'Dùng xe tăng', 'Đổ bộ đường không'], correct: 0 },
+    { question: 'Khoảng bao nhiêu dân công được huy động cho chiến dịch?', options: ['161.000', '201.000', '261.000', '361.000'], correct: 2 },
+  ],
+  [
+    { question: 'Chiến dịch Điện Biên Phủ diễn ra trong bao nhiêu ngày đêm?', options: ['36', '46', '56', '66'], correct: 2 },
+    { question: 'Chiến dịch bắt đầu vào ngày nào?', options: ['06/12/1953', '13/03/1954', '30/03/1954', '01/05/1954'], correct: 1 },
+    { question: 'Đợt tiến công thứ nhất diễn ra trong khoảng nào?', options: ['13–17/3', '20–25/3', '30/3–30/4', '1–7/5'], correct: 0 },
+    { question: 'Cứ điểm nào bị tiêu diệt trong đợt tiến công thứ nhất?', options: ['A1', 'C1', 'Him Lam', 'D1'], correct: 2 },
+    { question: 'Đợt tiến công thứ hai bắt đầu vào ngày nào?', options: ['17/3', '25/3', '30/3', '1/5'], correct: 2 },
+    { question: 'Cứ điểm nào thuộc phía đông phân khu trung tâm?', options: ['Him Lam', 'Bản Kéo', 'A1', 'Độc Lập'], correct: 2 },
+    { question: 'Đợt tổng công kích cuối cùng diễn ra từ ngày nào đến ngày nào?', options: ['13–17/3', '20–30/3', '1–7/5', '8–15/5'], correct: 2 },
+    { question: 'Cứ điểm A1 bị tiêu diệt vào thời điểm nào?', options: ['Đêm 6 rạng sáng 7/5', 'Sáng 13/3', 'Đêm 30/3', 'Chiều 21/7'], correct: 0 },
+    { question: 'Sở chỉ huy địch bị chiếm lúc mấy giờ ngày 7/5/1954?', options: ['15 giờ', '16 giờ 30', '17 giờ 30', '18 giờ'], correct: 2 },
+    { question: 'Hiệp định Giơ-ne-vơ được ký kết vào ngày nào?', options: ['07/05/1954', '21/07/1954', '02/09/1954', '10/10/1954'], correct: 1 },
+  ],
+];
+
+const providedQuestionBank = [
+  { question: 'Đại hội đại biểu toàn quốc lần thứ II của Đảng (2/1951) diễn ra tại đâu?', options: ['Tân Trào, Tuyên Quang.', 'Xã Vinh Quang (nay là Kim Bình), huyện Chiêm Hóa, tỉnh Tuyên Quang.', 'Pác Bó, Cao Bằng.', 'Định Hóa, Thái Nguyên.'], correct: 1 },
+  { question: 'Tại Đại hội II, Đảng ta quyết định đổi tên thành gì?', options: ['Đảng Cộng sản Đông Dương.', 'Đảng Lao động Việt Nam.', 'Đảng Cộng sản Việt Nam.', 'Hội nghiên cứu Chủ nghĩa Mác ở Đông Dương.'], correct: 1 },
+  { question: 'Ai được bầu làm Tổng Bí thư tại Đại hội II của Đảng?', options: ['Hồ Chí Minh.', 'Võ Nguyên Giáp.', 'Trường Chinh.', 'Phạm Văn Đồng.'], correct: 2 },
+  { question: 'Chính cương Đảng Lao động Việt Nam (1951) xác định tính chất của xã hội Việt Nam lúc bấy giờ là gì?', options: ['Thuộc địa nửa phong kiến.', 'Dân chủ nhân dân, một phần thuộc địa và nửa phong kiến.', 'Xã hội chủ nghĩa.', 'Tư bản chủ nghĩa.'], correct: 1 },
+  { question: 'Nhiệm vụ chính được đặt lên hàng đầu trong Chính cương năm 1951 là gì?', options: ['Cải cách ruộng đất.', 'Xây dựng chủ nghĩa xã hội.', 'Giải phóng dân tộc.', 'Phát triển kinh tế.'], correct: 2 },
+  { question: 'Cuộc vận động nào được Đảng tiến hành năm 1952 nhằm nâng cao năng lực lãnh đạo và sức chiến đấu của quân đội?', options: ['Thi đua ái quốc.', '“Chỉnh Đảng, chỉnh quân”.', 'Diệt giặc đói, giặc dốt.', 'Cải cách ruộng đất.'], correct: 1 },
+  { question: 'Luật Cải cách ruộng đất được Quốc hội thông qua và Chủ tịch Hồ Chí Minh ban hành vào thời gian nào?', options: ['Tháng 2/1951.', 'Tháng 5/1953.', 'Tháng 12/1953.', 'Tháng 7/1954.'], correct: 2 },
+  { question: 'Nền tảng động lực của cách mạng Việt Nam theo Đại hội II là liên minh giữa các giai cấp nào?', options: ['Công nhân và nông dân.', 'Công nhân, nông dân và lao động trí óc.', 'Công nhân, nông dân, tiểu tư sản và tư sản dân tộc.', 'Công nhân và lao động trí óc.'], correct: 1 },
+  { question: 'Tướng Henri Navarre được cử sang Đông Dương làm Tổng chỉ huy quân đội viễn chinh Pháp vào thời gian nào?', options: ['Tháng 12/1946.', 'Tháng 5/1953.', 'Tháng 9/1953.', 'Tháng 12/1953.'], correct: 1 },
+  { question: 'Mục tiêu cốt lõi của Kế hoạch Nava là gì?', options: ['Rút quân khỏi Đông Dương trong danh dự.', 'Xoay chuyển cục diện chiến tranh trong vòng 18 tháng để giành một thắng lợi quyết định.', 'Tiêu diệt toàn bộ bộ đội chủ lực Việt Nam trong 6 tháng.', 'Mở rộng chiếm đóng toàn bộ bán đảo Đông Dương.'], correct: 1 },
+  { question: 'Trong kế hoạch ban đầu, Pháp tập trung lực lượng cơ động chiến lược mạnh nhất (44 tiểu đoàn) ở đâu?', options: ['Điện Biên Phủ.', 'Đồng bằng Bắc Bộ.', 'Tây Nguyên.', 'Thượng Lào.'], correct: 1 },
+  { question: 'Để phá thế tập trung quân của Pháp, Bộ Chính trị đề ra phương châm tác chiến Đông - Xuân 1953-1954 như thế nào?', options: ['Đánh thẳng vào các thành phố lớn do Pháp chiếm giữ.', 'Tiến công vào những hướng quan trọng mà địch tương đối yếu, buộc chúng phải phân tán.', 'Tập trung toàn bộ chủ lực đánh một trận quyết định tại đồng bằng.', 'Chỉ thực hiện chiến tranh du kích sau lưng địch.'], correct: 1 },
+  { question: 'Đòn tiến công của ta đã buộc quân Pháp phải phân tán lực lượng ra 5 nơi, đó là những nơi nào?', options: ['Hà Nội, Hải Phòng, Huế, Đà Nẵng, Sài Gòn.', 'Đồng bằng Bắc Bộ, Điện Biên Phủ, Sê-nô, Luông Pha-băng và Plây Cu.', 'Điện Biên Phủ, Lai Châu, Thượng Lào, Hạ Lào, Tây Nguyên.', 'Hà Nội, Điện Biên Phủ, Sê-nô, Plây Cu, Sài Gòn.'], correct: 1 },
+  { question: 'Tại sao Pháp chọn Điện Biên Phủ để xây dựng tập đoàn cứ điểm?', options: ['Đây là thủ đô của vùng Tây Bắc.', 'Để khống chế vùng rộng lớn Tây Bắc và Thượng Lào, đối phó với hướng tiến công của ta.', 'Vì đây là nơi có đông dân cư nhất vùng núi.', 'Để bảo vệ các thành phố lớn ở đồng bằng.'], correct: 1 },
+  { question: 'Mỹ có vai trò gì trong Kế hoạch Nava?', options: ['Không liên quan.', 'Phản đối Pháp kéo dài chiến tranh.', 'Tăng cường viện trợ, chi trả phần lớn chi phí vật chất cho kế hoạch.', 'Trực tiếp đưa quân tham chiến thay Pháp.'], correct: 2 },
+  { question: 'Tập đoàn cứ điểm Điện Biên Phủ được Pháp bố trí thành bao nhiêu phân khu và bao nhiêu cứ điểm?', options: ['2 phân khu, 49 cứ điểm.', '3 phân khu, 49 cứ điểm.', '3 phân khu, 50 cứ điểm.', '4 phân khu, 45 cứ điểm.'], correct: 1 },
+  { question: 'Bộ Chính trị quyết định mở Chiến dịch Điện Biên Phủ vào ngày tháng năm nào?', options: ['02/09/1945.', '06/12/1953.', '13/03/1954.', '07/05/1954.'], correct: 1 },
+  { question: 'Ai là Tư lệnh kiêm Bí thư Đảng uỷ chiến dịch Điện Biên Phủ?', options: ['Hồ Chí Minh.', 'Phạm Văn Đồng.', 'Đại tướng Võ Nguyên Giáp.', 'Đồng chí Trường Chinh.'], correct: 2 },
+  { question: 'Phương châm tác chiến ban đầu của ta tại Điện Biên Phủ là gì?', options: ['Đánh chắc, tiến chắc.', 'Đánh nhanh, giải quyết nhanh.', 'Đánh vào sở chỉ huy trung tâm trước.', 'Vây lấn kéo dài.'], correct: 1 },
+  { question: 'Đại tướng Võ Nguyên Giáp đã quyết định thay đổi phương châm tác chiến từ “đánh nhanh, giải quyết nhanh” sang phương châm nào?', options: ['Đánh chậm, chắc thắng.', 'Đánh chắc, tiến chắc.', 'Đánh nhanh, rút nhanh.', 'Đánh du kích tiêu hao.'], correct: 1 },
+  { question: 'Tại sao ta thay đổi phương châm tác chiến sang “đánh chắc, tiến chắc”?', options: ['Vì ta thiếu lương thực.', 'Vì địch đã tháo chạy.', 'Vì địch đã tăng cường phòng ngự kiên cố, ta cần chuẩn bị kỹ để bảo đảm chắc thắng.', 'Vì sự can thiệp trực tiếp của quân đội Mỹ.'], correct: 2 },
+  { question: 'Chiến dịch Điện Biên Phủ diễn ra trong bao nhiêu ngày đêm?', options: ['50 ngày đêm.', '55 ngày đêm.', '56 ngày đêm.', '60 ngày đêm.'], correct: 2 },
+  { question: 'Chiến dịch Điện Biên Phủ bắt đầu vào ngày nào?', options: ['13/02/1954.', '13/03/1954.', '30/03/1954.', '01/05/1954.'], correct: 1 },
+  { question: 'Đợt 1 của chiến dịch (13/3 - 17/3), quân ta đã tiêu diệt những cứ điểm nào?', options: ['A1, C1, D1.', 'Him Lam, Độc Lập và bức hàng Bản Kéo.', 'Hồng Cúm, Mường Thanh.', 'Sở chỉ huy Đờ Caxtơri.'], correct: 1 },
+  { question: 'Đợt tấn công nào được đánh giá là dai dẳng, quyết liệt và gay go nhất trong chiến dịch?', options: ['Đợt 1.', 'Đợt 2.', 'Đợt 3.', 'Giai đoạn truy kích.'], correct: 1 },
+  { question: 'Tại đồi A1, ta và địch đã giằng co nhau trong bao nhiêu ngày?', options: ['10 ngày.', '20 ngày.', '30 ngày.', '56 ngày.'], correct: 2 },
+  { question: 'Quân ta chiếm sở chỉ huy trung tâm và bắt sống tướng Đờ Caxtơri vào lúc nào?', options: ['17 giờ 30 phút ngày 30/04/1954.', '05 giờ 30 phút ngày 07/05/1954.', '17 giờ 30 phút ngày 07/05/1954.', '24 giờ ngày 07/05/1954.'], correct: 2 },
+  { question: 'Tổng số quân địch bị tiêu diệt và bắt sống tại Điện Biên Phủ là bao nhiêu?', options: ['10.000 tên.', '16.200 tên.', '20.000 tên.', '44.000 tên.'], correct: 1 },
+  { question: 'Nhân vật nào sau đây được nhắc đến như tấm gương anh hùng tiêu biểu trong chiến dịch Điện Biên Phủ?', options: ['Võ Thị Sáu.', 'Tô Vĩnh Diện.', 'Kim Đồng.', 'Lê Văn Tám.'], correct: 1 },
+  { question: 'Hậu phương đã huy động bao nhiêu dân công phục vụ cho chiến dịch Điện Biên Phủ?', options: ['Khoảng 100.000 người.', 'Khoảng 261.000 người.', 'Khoảng 500.000 người.', 'Khoảng 1.000.000 người.'], correct: 1 },
+  { question: 'Hội nghị Giơ-ne-vơ bàn về chấm dứt chiến tranh ở Đông Dương bắt đầu họp vào ngày nào?', options: ['13/03/1954.', '08/05/1954.', '07/05/1954.', '21/07/1954.'], correct: 1 },
+  { question: 'Hiệp định Giơ-ne-vơ về Đông Dương được ký kết vào ngày nào?', options: ['07/05/1954.', '19/05/1954.', '21/07/1954.', '02/09/1954.'], correct: 2 },
+  { question: 'Trưởng đoàn đại biểu Chính phủ Việt Nam Dân chủ Cộng hòa tại Hội nghị Giơ-ne-vơ là ai?', options: ['Hồ Chí Minh.', 'Võ Nguyên Giáp.', 'Phạm Văn Đồng.', 'Trường Chinh.'], correct: 2 },
+  { question: 'Ý nghĩa quan trọng nhất của Hiệp định Giơ-ne-vơ là gì?', options: ['Pháp rút quân ngay lập tức khỏi miền Nam.', 'Mỹ công nhận nền độc lập của Việt Nam.', 'Lần đầu tiên các quyền dân tộc cơ bản (độc lập, chủ quyền, thống nhất, toàn vẹn lãnh thổ) của ba nước Đông Dương được công nhận quốc tế.', 'Việt Nam chính thức bước vào thời kỳ xã hội chủ nghĩa.'], correct: 2 },
+  { question: 'Chiến thắng Điện Biên Phủ đã làm phá sản hoàn toàn kế hoạch quân sự nào của Pháp?', options: ['Kế hoạch Rơ-ve.', 'Kế hoạch Đờ Lát Đờ Tátxinhi.', 'Kế hoạch Nava.', 'Kế hoạch Bollaert.'], correct: 2 },
+  { question: 'Sau chiến thắng Điện Biên Phủ và Hiệp định Giơ-ne-vơ, cách mạng Việt Nam chuyển sang giai đoạn mới là gì?', options: ['Kháng chiến chống Pháp ở miền Nam.', 'Giải phóng hoàn toàn miền Bắc, tạo cơ sở để giải phóng miền Nam, thống nhất đất nước.', 'Xây dựng quân đội hiện đại ngay lập tức.', 'Thiết lập quan hệ ngoại giao với Mỹ.'], correct: 1 },
+  { question: 'Chiến thắng Điện Biên Phủ được ví như những thắng lợi nào trong lịch sử dân tộc?', options: ['Chiến thắng Ngọc Hồi - Đống Đa.', 'Bạch Đằng, Chi Lăng, Đống Đa của thế kỷ XX.', 'Khởi nghĩa Hai Bà Trưng.', 'Chiến thắng Điện Biên Phủ trên không.'], correct: 1 },
+  { question: 'Ngoài Việt Nam, các quốc gia nào cũng được hưởng lợi từ thắng lợi của chiến dịch Điện Biên Phủ và Hiệp định Giơ-ne-vơ?', options: ['Trung Quốc và Liên Xô.', 'Lào và Campuchia.', 'Thái Lan và Miến Điện.', 'Các nước Đông Nam Á khác.'], correct: 1 },
+  { question: 'Theo Hồ Chủ tịch, chiến thắng Điện Biên Phủ ghi dấu ấn gì trong lịch sử thế giới?', options: ['Sự khởi đầu của Mỹ tại Đông Dương.', 'Nơi chủ nghĩa thực dân lăn xuống dốc và tan rã.', 'Thắng lợi của vũ khí hiện đại.', 'Sự thất bại của Liên hợp quốc.'], correct: 1 },
+  { question: '“Lực lượng nòng cốt” để làm nên chiến thắng Điện Biên Phủ theo đường lối của Đảng là gì?', options: ['Chỉ có bộ đội chủ lực.', 'Chỉ có dân công hỏa tuyến.', 'Lực lượng vũ trang ba thứ quân làm nòng cốt cho toàn dân đánh giặc.', 'Sự chi viện hoàn toàn từ bên ngoài.'], correct: 2 },
+];
+
+function randomizeQuestionBank(bank) {
+  const shuffledQuestions = [...bank];
+  for (let index = shuffledQuestions.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [shuffledQuestions[index], shuffledQuestions[swapIndex]] = [shuffledQuestions[swapIndex], shuffledQuestions[index]];
+  }
+  return shuffledQuestions.map((question) => {
+    const answers = question.options.map((text, index) => ({ text, correct: index === question.correct }));
+    for (let index = answers.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(Math.random() * (index + 1));
+      [answers[index], answers[swapIndex]] = [answers[swapIndex], answers[index]];
+    }
+    return { ...question, options: answers.map((answer) => answer.text), correct: answers.findIndex((answer) => answer.correct) };
+  });
+}
 
 function SiteHeader({ current, navigate }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -753,117 +949,444 @@ function QuizPage({ navigate }) {
   );
 }
 
-function ResourceMeter({ icon: Icon, label, value, tone }) {
-  return (
-    <div className={`resource-meter ${tone}`}>
-      <div><Icon /><span>{label}</span><strong>{value}</strong></div>
-      <div className="meter-track"><i style={{ width: `${value}%` }} /></div>
-    </div>
-  );
-}
-
 function GamePage({ navigate }) {
-  const initialResources = { organization: 35, strategy: 35, logistics: 35 };
-  const [turn, setTurn] = useState(0);
-  const [resources, setResources] = useState(initialResources);
-  const [selected, setSelected] = useState(null);
-  const [finished, setFinished] = useState(false);
-  const scenario = gameScenarios[turn];
-  const totalScore = Math.round((resources.organization + resources.strategy + resources.logistics) / 3);
+  const colors = ['red', 'gold', 'green', 'blue'];
+  const [stage, setStage] = useState('setup');
+  const [teamNames, setTeamNames] = useState(['Nhóm 1', 'Nhóm 2', 'Nhóm 3', 'Nhóm 4']);
+  const [teamMascots, setTeamMascots] = useState([0, 1, 2, 3]);
+  const [teamOrder, setTeamOrder] = useState([0, 1, 2, 3]);
+  const [orderDrawn, setOrderDrawn] = useState(false);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [randomQuestions, setRandomQuestions] = useState(() => randomizeQuestionBank(providedQuestionBank));
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [scores, setScores] = useState([0, 0, 0, 0]);
+  const [collectedWords, setCollectedWords] = useState([[], [], [], []]);
+  const [wrongOptions, setWrongOptions] = useState([]);
+  const [attempts, setAttempts] = useState(0);
+  const [questionPhase, setQuestionPhase] = useState('reading');
+  const [readingTimeLeft, setReadingTimeLeft] = useState(5);
+  const [timeLeft, setTimeLeft] = useState(20);
+  const [feedback, setFeedback] = useState(null);
+  const [teamSentences, setTeamSentences] = useState([[], [], [], []]);
+  const [assemblyCompleted, setAssemblyCompleted] = useState([false, false, false, false]);
+  const [assemblyCorrect, setAssemblyCorrect] = useState([false, false, false, false]);
+  const [activeAssemblyTeam, setActiveAssemblyTeam] = useState(0);
+  const [assemblyTimeLeft, setAssemblyTimeLeft] = useState(60);
+  const [assemblyError, setAssemblyError] = useState(false);
+  const [earlyAnswerTeam, setEarlyAnswerTeam] = useState(null);
+  const [earlyAnswerText, setEarlyAnswerText] = useState('');
+  const [earlyAnswerTime, setEarlyAnswerTime] = useState(60);
+  const [earlyAnswerFeedback, setEarlyAnswerFeedback] = useState(null);
+  const [earlyAttemptUsed, setEarlyAttemptUsed] = useState([false, false, false, false]);
+  const [gameEndReason, setGameEndReason] = useState(null);
+  const [earlyWinnerTeam, setEarlyWinnerTeam] = useState(null);
+  const currentTeam = teamOrder[questionIndex % 4];
+  const currentRound = Math.floor(questionIndex / 4);
+  const currentQuestion = randomQuestions[questionIndex];
+  const currentFragment = teamQuotes[currentTeam].fragments[currentRound];
+  const totalQuestions = 40;
 
-  const choose = (choiceIndex) => {
-    if (selected !== null) return;
-    const [organization, strategy, logistics] = scenario.choices[choiceIndex].effects;
-    setResources((current) => ({
-      organization: Math.max(0, Math.min(100, current.organization + organization)),
-      strategy: Math.max(0, Math.min(100, current.strategy + strategy)),
-      logistics: Math.max(0, Math.min(100, current.logistics + logistics)),
-    }));
-    setSelected(choiceIndex);
+  useEffect(() => {
+    if (stage !== 'questions' || questionPhase !== 'reading' || earlyAnswerTeam !== null) return undefined;
+    if (readingTimeLeft <= 0) {
+      setQuestionPhase('answering');
+      setTimeLeft(20);
+      return undefined;
+    }
+    const timer = window.setTimeout(() => setReadingTimeLeft((current) => current - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [stage, questionIndex, questionPhase, readingTimeLeft, earlyAnswerTeam]);
+
+  useEffect(() => {
+    if (stage !== 'questions' || questionPhase !== 'answering' || earlyAnswerTeam !== null || feedback?.correct || feedback?.timeout) return undefined;
+    if (timeLeft <= 0) {
+      setCollectedWords((current) => current.map((words, index) => index === currentTeam && !words.includes(currentRound) ? [...words, currentRound] : words));
+      setFeedback({ correct: false, timeout: true });
+      return undefined;
+    }
+    const timer = window.setTimeout(() => setTimeLeft((current) => current - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [stage, questionIndex, questionPhase, timeLeft, feedback?.correct, feedback?.timeout, currentTeam, currentRound, earlyAnswerTeam]);
+
+  useEffect(() => {
+    if (earlyAnswerTeam === null || earlyAnswerFeedback?.correct || earlyAnswerFeedback?.timeout) return undefined;
+    if (earlyAnswerTime <= 0) {
+      setEarlyAnswerFeedback({ correct: false, timeout: true });
+      return undefined;
+    }
+    const timer = window.setTimeout(() => setEarlyAnswerTime((current) => current - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [earlyAnswerTeam, earlyAnswerTime, earlyAnswerFeedback?.correct, earlyAnswerFeedback?.timeout]);
+
+  useEffect(() => {
+    if (stage !== 'assemble' || assemblyCompleted[activeAssemblyTeam]) return undefined;
+    if (assemblyTimeLeft <= 0) {
+      const completed = assemblyCompleted.map((value, index) => index === activeAssemblyTeam ? true : value);
+      setAssemblyCompleted(completed);
+      const nextTeam = teamOrder.find((teamIndex) => !completed[teamIndex]);
+      if (nextTeam === undefined) {
+        setGameEndReason('assembly');
+        setStage('result');
+      }
+      else {
+        setActiveAssemblyTeam(nextTeam);
+        setAssemblyTimeLeft(60);
+      }
+      return undefined;
+    }
+    const timer = window.setTimeout(() => setAssemblyTimeLeft((current) => current - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [stage, activeAssemblyTeam, assemblyTimeLeft, assemblyCompleted, teamOrder]);
+
+  const drawTeamOrder = () => {
+    setIsDrawing(true);
+    setOrderDrawn(false);
+    window.setTimeout(() => {
+      const order = [0, 1, 2, 3];
+      for (let index = order.length - 1; index > 0; index -= 1) {
+        const swapIndex = Math.floor(Math.random() * (index + 1));
+        [order[index], order[swapIndex]] = [order[swapIndex], order[index]];
+      }
+      setTeamOrder(order);
+      setOrderDrawn(true);
+      setIsDrawing(false);
+    }, 900);
   };
 
-  const nextTurn = () => {
-    if (turn === gameScenarios.length - 1) setFinished(true);
-    else {
-      setTurn((current) => current + 1);
-      setSelected(null);
+  const startGame = () => {
+    if (!orderDrawn) return;
+    setRandomQuestions(randomizeQuestionBank(providedQuestionBank));
+    setQuestionPhase('reading');
+    setReadingTimeLeft(5);
+    setTimeLeft(20);
+    setStage('questions');
+  };
+
+  const openEarlyAnswer = (teamIndex) => {
+    if (assemblyCompleted[teamIndex] || earlyAttemptUsed[teamIndex]) return;
+    setEarlyAttemptUsed((current) => current.map((value, index) => index === teamIndex ? true : value));
+    setEarlyAnswerTeam(teamIndex);
+    setEarlyAnswerText('');
+    setEarlyAnswerTime(60);
+    setEarlyAnswerFeedback(null);
+  };
+
+  const closeEarlyAnswer = () => {
+    setEarlyAnswerTeam(null);
+    setEarlyAnswerText('');
+    setEarlyAnswerFeedback(null);
+  };
+
+  const normalizeAnswer = (value) => value.toLocaleLowerCase('vi-VN').normalize('NFC').replace(/[.,!?:;“”"']/g, '').replace(/\s+/g, ' ').trim();
+
+  const submitEarlyAnswer = () => {
+    if (earlyAnswerTeam === null || earlyAnswerTime <= 0) return;
+    const correct = normalizeAnswer(earlyAnswerText) === normalizeAnswer(teamQuotes[earlyAnswerTeam].quote);
+    if (correct) {
+      setAssemblyCompleted((current) => current.map((value, index) => index === earlyAnswerTeam ? true : value));
+      setAssemblyCorrect((current) => current.map((value, index) => index === earlyAnswerTeam ? true : value));
+      setScores((current) => {
+        const winningScore = Math.max(...current) + 500;
+        return current.map((score, index) => index === earlyAnswerTeam ? winningScore : score);
+      });
+      setEarlyAnswerFeedback({ correct: true });
+      setEarlyWinnerTeam(earlyAnswerTeam);
+      setGameEndReason('early');
+      setStage('result');
+    } else setEarlyAnswerFeedback({ correct: false });
+  };
+
+  const answerQuestion = (optionIndex) => {
+    if (questionPhase !== 'answering' || feedback?.correct || feedback?.timeout || timeLeft <= 0 || wrongOptions.includes(optionIndex)) return;
+    if (optionIndex === currentQuestion.correct) {
+      const points = Math.max(40, 100 - attempts * 25);
+      setScores((current) => current.map((score, index) => index === currentTeam ? score + points : score));
+      setCollectedWords((current) => current.map((words, index) => index === currentTeam ? [...words, currentRound] : words));
+      setFeedback({ correct: true, points });
+    } else {
+      setWrongOptions((current) => [...current, optionIndex]);
+      setAttempts((current) => current + 1);
+      setFeedback({ correct: false });
     }
   };
 
-  const restart = () => {
-    setTurn(0);
-    setResources(initialResources);
-    setSelected(null);
-    setFinished(false);
+  const nextQuestion = () => {
+    if (!feedback?.correct && !feedback?.timeout) return;
+    if (questionIndex === totalQuestions - 1) {
+      const nextAssemblyTeam = teamOrder.find((teamIndex) => !assemblyCompleted[teamIndex]);
+      if (nextAssemblyTeam === undefined) {
+        setGameEndReason('assembly');
+        setStage('result');
+      }
+      else {
+        setActiveAssemblyTeam(nextAssemblyTeam);
+        setAssemblyTimeLeft(60);
+        setStage('assemble');
+      }
+    }
+    else setQuestionIndex((current) => current + 1);
+    setWrongOptions([]);
+    setAttempts(0);
+    setQuestionPhase('reading');
+    setReadingTimeLeft(5);
+    setTimeLeft(20);
+    setFeedback(null);
   };
+
+  const addWord = (id) => {
+    if (!teamSentences[activeAssemblyTeam].includes(id)) {
+      setTeamSentences((current) => current.map((words, index) => index === activeAssemblyTeam ? [...words, id] : words));
+      setAssemblyError(false);
+    }
+  };
+
+  const removeWord = (id) => {
+    setTeamSentences((current) => current.map((words, index) => index === activeAssemblyTeam ? words.filter((wordId) => wordId !== id) : words));
+    setAssemblyError(false);
+    setEarlyAnswerTeam(null);
+    setEarlyAnswerText('');
+    setEarlyAnswerTime(60);
+    setEarlyAnswerFeedback(null);
+  };
+
+  const checkSentence = () => {
+    const currentSentence = teamSentences[activeAssemblyTeam];
+    const correct = currentSentence.length === 10 && currentSentence.every((id, index) => id === index);
+    if (correct) {
+      const completed = assemblyCompleted.map((value, index) => index === activeAssemblyTeam ? true : value);
+      setAssemblyCorrect((current) => current.map((value, index) => index === activeAssemblyTeam ? true : value));
+      setAssemblyCompleted(completed);
+      const nextTeam = teamOrder.find((teamIndex) => !completed[teamIndex]);
+      if (nextTeam === undefined) {
+        setGameEndReason('assembly');
+        setStage('result');
+      }
+      else {
+        setActiveAssemblyTeam(nextTeam);
+        setAssemblyTimeLeft(60);
+      }
+      setAssemblyError(false);
+    } else setAssemblyError(true);
+  };
+
+  const restart = () => {
+    setStage('setup');
+    setQuestionIndex(0);
+    setScores([0, 0, 0, 0]);
+    setCollectedWords([[], [], [], []]);
+    setWrongOptions([]);
+    setAttempts(0);
+    setQuestionPhase('reading');
+    setReadingTimeLeft(5);
+    setTimeLeft(20);
+    setFeedback(null);
+    setTeamSentences([[], [], [], []]);
+    setAssemblyCompleted([false, false, false, false]);
+    setAssemblyCorrect([false, false, false, false]);
+    setActiveAssemblyTeam(0);
+    setAssemblyTimeLeft(60);
+    setAssemblyError(false);
+    setTeamOrder([0, 1, 2, 3]);
+    setOrderDrawn(false);
+    setIsDrawing(false);
+    setTeamMascots([0, 1, 2, 3]);
+    setEarlyAnswerTeam(null);
+    setEarlyAnswerText('');
+    setEarlyAnswerTime(60);
+    setEarlyAnswerFeedback(null);
+    setEarlyAttemptUsed([false, false, false, false]);
+    setGameEndReason(null);
+    setEarlyWinnerTeam(null);
+  };
+
+  const highestScore = Math.max(...scores);
+  const winners = teamNames.map((name, index) => name || `Nhóm ${index + 1}`).filter((_, index) => scores[index] === highestScore);
+  const rankedTeams = teamNames.map((name, index) => ({ name: name || `Nhóm ${index + 1}`, teamIndex: index, score: scores[index] })).sort((first, second) => second.score - first.score);
 
   return (
     <main className="interactive-page game-page">
       <SiteHeader current="game" navigate={navigate} />
       <div className="game-grid-bg" />
-      {!finished ? (
-        <section className="game-shell">
-          <header className="game-status">
-            <div>
-              <div className="section-kicker light"><span>G</span> Trò chơi chiến lược</div>
-              <h1>Kiến tạo <em>thắng lợi</em></h1>
-              <p>Đưa ra quyết định để cân bằng sức mạnh tổng hợp.</p>
+      {stage === 'setup' && (
+        <section className="group-game-shell setup-stage">
+          <div className="game-title-block">
+            <div className="section-kicker light"><span>G</span> Trò chơi dành cho 4 nhóm</div>
+            <h1>Nhặt từ khóa,<br /><em>ghép câu lịch sử</em></h1>
+            <p>Mỗi nhóm trả lời 10 câu hỏi để mở khóa 10 mảnh ghép trong kho riêng. Cuối trò chơi, từng nhóm sắp xếp các mảnh thành câu của mình.</p>
+          </div>
+          <div className="setup-panel">
+            <div className="rules-row">
+              <div><strong>01</strong><span>4 nhóm lần lượt trả lời</span></div>
+              <div><strong>02</strong><span>Đúng để đưa chữ về kho riêng</span></div>
+              <div><strong>03</strong><span>Mỗi nhóm ghép một câu riêng</span></div>
             </div>
-            <div className="mission-count"><small>Nhiệm vụ</small><strong>0{turn + 1}<span>/0{gameScenarios.length}</span></strong></div>
+            <h2>Đặt tên cho các nhóm</h2>
+            <div className="team-inputs">
+              {teamNames.map((name, index) => (
+                <label className={colors[index]} key={index}><span>0{index + 1}</span><input value={name} maxLength={18} onChange={(event) => setTeamNames((current) => current.map((team, teamIndex) => teamIndex === index ? event.target.value : team))} /></label>
+              ))}
+            </div>
+            <h2 className="mascot-title">Chọn linh vật riêng</h2>
+            <div className="mascot-selectors">
+              {teamNames.map((name, teamIndex) => (
+                <label className={colors[teamIndex]} key={teamIndex}>
+                  <span className="mascot-preview">{mascotOptions[teamMascots[teamIndex]].emoji}</span>
+                  <div><small>{name || `Nhóm ${teamIndex + 1}`}</small><select value={teamMascots[teamIndex]} onChange={(event) => setTeamMascots((current) => current.map((mascot, index) => index === teamIndex ? Number(event.target.value) : mascot))}>{mascotOptions.map((mascot, mascotIndex) => <option disabled={teamMascots.includes(mascotIndex) && teamMascots[teamIndex] !== mascotIndex} value={mascotIndex} key={mascot.name}>{mascot.emoji} {mascot.name}</option>)}</select></div>
+                </label>
+              ))}
+            </div>
+            <div className={`order-draw ${isDrawing ? 'drawing' : ''} ${orderDrawn ? 'drawn' : ''}`}>
+              <div className="order-draw-head"><span>Bốc thăm thứ tự chơi</span><small>{orderDrawn ? 'Đã có kết quả' : 'Bắt buộc trước khi bắt đầu'}</small></div>
+              <div className="play-order">
+                {(isDrawing ? [0, 1, 2, 3] : teamOrder).map((teamIndex, orderIndex) => (
+                  <div className={isDrawing ? 'mystery' : colors[teamIndex]} key={orderIndex}>
+                    <span>Lượt {orderIndex + 1}</span>
+                    <strong>{isDrawing ? '?' : orderDrawn ? <><i>{mascotOptions[teamMascots[teamIndex]].emoji}</i>{teamNames[teamIndex] || `Nhóm ${teamIndex + 1}`}</> : 'Chưa bốc thăm'}</strong>
+                  </div>
+                ))}
+              </div>
+              <button className="draw-order-button" disabled={isDrawing} onClick={drawTeamOrder}><Sparkles />{isDrawing ? 'Đang xáo trộn...' : orderDrawn ? 'Bốc thăm lại' : 'Bốc thăm ngay'}</button>
+            </div>
+            <button className="start-group-game" disabled={!orderDrawn || isDrawing} onClick={startGame}>Bắt đầu trò chơi <ArrowRight /></button>
+          </div>
+        </section>
+      )}
+
+      {stage === 'questions' && (
+        <section className="group-game-shell question-stage">
+          <header className="round-heading">
+            <div><div className="section-kicker light"><span>1</span> Vòng 1 · 10 câu cho mỗi nhóm</div><h1>Câu hỏi <em>{String(questionIndex + 1).padStart(2, '0')}</em></h1></div>
+            <div className="round-progress"><span>{questionIndex + 1} / {totalQuestions}</span><div><i style={{ width: `${((questionIndex + 1) / totalQuestions) * 100}%` }} /></div></div>
           </header>
 
-          <div className="resource-bar">
-            <ResourceMeter icon={Users} label="Tổ chức" value={resources.organization} tone="org" />
-            <ResourceMeter icon={Target} label="Chiến lược" value={resources.strategy} tone="strat" />
-            <ResourceMeter icon={PackageOpen} label="Hậu cần" value={resources.logistics} tone="logi" />
+          <div className="team-scoreboard">
+            {teamOrder.map((teamIndex, orderIndex) => (
+              <div className={`${colors[teamIndex]} ${currentTeam === teamIndex ? 'active' : ''}`} key={teamIndex}>
+                <span className="team-dot mascot-dot" title={`Lượt ${orderIndex + 1}`}>{mascotOptions[teamMascots[teamIndex]].emoji}</span>
+                <div><strong>{teamNames[teamIndex] || `Nhóm ${teamIndex + 1}`}</strong><small>{collectedWords[teamIndex].length} mảnh ghép</small></div>
+                <b>{scores[teamIndex]}</b>
+              </div>
+            ))}
           </div>
 
-          <article className="mission-card" key={turn}>
-            <div className="mission-brief">
-              <span className="mission-year">{scenario.year}</span>
-              <small>Tình huống {turn + 1}</small>
-              <h2>{scenario.title}</h2>
-              <p>{scenario.situation}</p>
-              <div className="brief-tip"><Gauge /><span>Chọn phương án tối ưu để bảo toàn cả ba nguồn lực.</span></div>
+          <div className="early-answer-bar">
+            <div><Sparkles /><span><strong>Đã đoán ra câu?</strong> Mỗi nhóm có một lượt trả lời tổng sớm trong 60 giây.</span></div>
+            <div>{teamOrder.map((teamIndex) => <button className={colors[teamIndex]} disabled={assemblyCompleted[teamIndex] || earlyAttemptUsed[teamIndex]} onClick={() => openEarlyAnswer(teamIndex)} key={teamIndex}>{assemblyCompleted[teamIndex] ? <><Check /> Đã giải</> : earlyAttemptUsed[teamIndex] ? <><Clock3 /> Đã thử</> : <>{mascotOptions[teamMascots[teamIndex]].emoji} Nhóm {teamIndex + 1} trả lời tổng</>}</button>)}</div>
+          </div>
+
+          <article className="group-question-card">
+            <div className={`turn-card ${colors[currentTeam]}`}>
+              <small>Lượt trả lời</small>
+              <strong>{teamNames[currentTeam] || `Nhóm ${currentTeam + 1}`}</strong>
+              <div className="turn-mascot"><span>{mascotOptions[teamMascots[currentTeam]].emoji}</span><small>{mascotOptions[teamMascots[currentTeam]].name}</small></div>
+              <p>Trả lời đúng ngay lần đầu để nhận trọn <b>100 điểm</b>.</p>
+              <div className="hidden-word"><span>Mảnh ghép</span><strong>{feedback?.correct || feedback?.timeout ? currentFragment : '••••••••'}</strong></div>
             </div>
-            <div className="decision-list">
-              <small>Quyết định của bạn</small>
-              {scenario.choices.map((choice, choiceIndex) => {
-                const isChosen = selected === choiceIndex;
-                const revealBest = selected !== null && choice.best;
-                return (
-                  <button className={`${isChosen ? 'chosen' : ''} ${revealBest ? 'best' : ''}`} onClick={() => choose(choiceIndex)} key={choice.text}>
-                    <span>{String.fromCharCode(65 + choiceIndex)}</span>
-                    <strong>{choice.text}</strong>
-                    {revealBest && <Check />}
-                  </button>
-                );
-              })}
-              {selected !== null && (
-                <div className={`mission-result ${scenario.choices[selected].best ? 'success' : ''}`} aria-live="polite">
-                  <Sparkles />
-                  <div><strong>{scenario.choices[selected].best ? 'Quyết định sáng suốt' : 'Hệ quả chiến lược'}</strong><p>{scenario.choices[selected].result}</p></div>
+            <div className="group-question-main">
+              <div className="question-meta-row">
+                <small>Câu hỏi dành cho {teamNames[currentTeam] || `Nhóm ${currentTeam + 1}`}</small>
+                <div className={`question-timer ${questionPhase === 'reading' ? 'reading' : ''} ${questionPhase === 'answering' && timeLeft <= 5 ? 'danger' : ''} ${feedback?.correct ? 'stopped' : ''}`}>
+                  <Clock3 /><strong>{questionPhase === 'reading' ? readingTimeLeft : timeLeft}</strong><span>{questionPhase === 'reading' ? 'đọc' : 'giây'}</span><div><i style={{ width: `${questionPhase === 'reading' ? (readingTimeLeft / 5) * 100 : (timeLeft / 20) * 100}%` }} /></div>
+                </div>
+              </div>
+              <h2>{currentQuestion.question}</h2>
+              {questionPhase === 'reading'
+                ? <div className="reading-answer-screen"><BookOpen /><div><strong>Thời gian đọc câu hỏi</strong><span>Đáp án sẽ mở sau {readingTimeLeft} giây</span></div></div>
+                : <div className="group-answer-grid">
+                    {currentQuestion.options.map((option, optionIndex) => (
+                      <button
+                        className={`${wrongOptions.includes(optionIndex) ? 'wrong' : ''} ${(feedback?.correct || feedback?.timeout) && optionIndex === currentQuestion.correct ? 'correct' : ''}`}
+                        disabled={feedback?.correct || feedback?.timeout || wrongOptions.includes(optionIndex)}
+                        onClick={() => answerQuestion(optionIndex)}
+                        key={option}
+                      ><span>{String.fromCharCode(65 + optionIndex)}</span>{option}{(feedback?.correct || feedback?.timeout) && optionIndex === currentQuestion.correct && <Check />}</button>
+                    ))}
+                  </div>}
+              {feedback && (
+                <div className={`group-feedback ${feedback.correct ? 'correct' : feedback.timeout ? 'timeout' : 'wrong'}`} aria-live="polite">
+                  {feedback.correct
+                    ? <><Check /><span><strong>Chính xác! +{feedback.points} điểm</strong>Mảnh ghép đã được đưa vào kho của nhóm.</span></>
+                    : feedback.timeout
+                      ? <><Clock3 /><span><strong>Hết 20 giây!</strong>Đáp án và mảnh ghép được công khai, nhóm không nhận điểm.</span></>
+                      : <><X /><span><strong>Chưa đúng, hãy thử lại!</strong>Điểm của câu hỏi sẽ giảm 25 điểm.</span></>}
                 </div>
               )}
-              <button className="next-mission" disabled={selected === null} onClick={nextTurn}>{turn === gameScenarios.length - 1 ? 'Xem kết quả chiến dịch' : 'Sang nhiệm vụ tiếp theo'} <ArrowRight /></button>
+              <button className="next-group-question" disabled={!feedback?.correct && !feedback?.timeout} onClick={nextQuestion}>{questionIndex === totalQuestions - 1 ? 'Sang vòng ghép câu' : 'Chuyển lượt cho nhóm tiếp theo'} <ArrowRight /></button>
             </div>
           </article>
+
+          {earlyAnswerTeam !== null && (
+            <div className="early-answer-overlay" role="dialog" aria-modal="true" aria-label="Trả lời tổng sớm">
+              <div className={`early-answer-modal ${colors[earlyAnswerTeam]}`}>
+                <button className="early-close" onClick={closeEarlyAnswer} aria-label="Đóng"><X /></button>
+                <div className="early-modal-head"><span>Thử thách trả lời tổng</span><h2>{teamNames[earlyAnswerTeam] || `Nhóm ${earlyAnswerTeam + 1}`}</h2><p>Nhập đầy đủ câu mà nhóm dự đoán từ các mảnh đã thu thập.</p></div>
+                <div className={`early-timer ${earlyAnswerTime <= 10 ? 'danger' : ''}`}><Clock3 /><span>Thời gian còn lại</span><strong>{String(Math.floor(earlyAnswerTime / 60)).padStart(2, '0')}:{String(earlyAnswerTime % 60).padStart(2, '0')}</strong><div><i style={{ width: `${(earlyAnswerTime / 60) * 100}%` }} /></div></div>
+                <div className="early-collected"><small>Mảnh ghép nhóm đang có</small><div>{collectedWords[earlyAnswerTeam].length ? collectedWords[earlyAnswerTeam].map((id) => <span key={id}>{teamQuotes[earlyAnswerTeam].fragments[id]}</span>) : <em>Chưa có mảnh ghép nào — nhóm đang thử đoán!</em>}</div></div>
+                <label className="early-input"><span>Câu trả lời của nhóm</span><textarea disabled={earlyAnswerFeedback?.correct || earlyAnswerFeedback?.timeout} value={earlyAnswerText} onChange={(event) => { setEarlyAnswerText(event.target.value); if (earlyAnswerFeedback && !earlyAnswerFeedback.timeout) setEarlyAnswerFeedback(null); }} placeholder="Nhập câu hoàn chỉnh tại đây..." /></label>
+                {earlyAnswerFeedback && <div className={`early-result ${earlyAnswerFeedback.correct ? 'correct' : earlyAnswerFeedback.timeout ? 'timeout' : 'wrong'}`}>{earlyAnswerFeedback.correct ? <><Trophy /><div><strong>Chính xác! +300 điểm</strong><span>Nhóm đã hoàn thành câu trước thời hạn.</span></div></> : earlyAnswerFeedback.timeout ? <><Clock3 /><div><strong>Đã hết 60 giây</strong><span>Câu đúng: “{teamQuotes[earlyAnswerTeam].quote}”</span></div></> : <><X /><div><strong>Chưa chính xác</strong><span>Nhóm có thể sửa và kiểm tra lại trong thời gian còn lại.</span></div></>}</div>}
+                {earlyAnswerFeedback?.correct || earlyAnswerFeedback?.timeout
+                  ? <button className="early-submit" onClick={closeEarlyAnswer}>Tiếp tục trò chơi <ArrowRight /></button>
+                  : <button className="early-submit" disabled={!earlyAnswerText.trim()} onClick={submitEarlyAnswer}><Check /> Kiểm tra câu trả lời</button>}
+              </div>
+            </div>
+          )}
         </section>
-      ) : (
-        <section className="result-screen game-result">
-          <div className="result-medal"><Flag fill="currentColor" /></div>
-          <div className="section-kicker light"><span>★</span> Chiến dịch kết thúc</div>
-          <h1>{totalScore >= 70 ? 'Toàn thắng!' : totalScore >= 50 ? 'Hoàn thành nhiệm vụ!' : 'Cần một chiến lược mới!'}</h1>
-          <div className="final-resources">
-            <ResourceMeter icon={Users} label="Tổ chức" value={resources.organization} tone="org" />
-            <ResourceMeter icon={Target} label="Chiến lược" value={resources.strategy} tone="strat" />
-            <ResourceMeter icon={PackageOpen} label="Hậu cần" value={resources.logistics} tone="logi" />
+      )}
+
+      {stage === 'assemble' && (
+        <section className="group-game-shell assembly-stage">
+          <header className="assembly-heading">
+            <div className="section-kicker light"><span>2</span> Vòng 2 · Bốn nhóm ghép bốn câu</div>
+            <h1>Mỗi nhóm hoàn thiện<br /><em>câu của mình</em></h1>
+            <p>Mỗi nhóm có 60 giây. Nhấn vào từng mảnh trong kho theo đúng thứ tự; nhấn lại mảnh trong câu để đưa nó về kho.</p>
+          </header>
+          <div className={`assembly-timer ${assemblyTimeLeft <= 10 ? 'danger' : ''}`}><Clock3 /><span>Thời gian của {teamNames[activeAssemblyTeam] || `Nhóm ${activeAssemblyTeam + 1}`}</span><strong>{String(Math.floor(assemblyTimeLeft / 60)).padStart(2, '0')}:{String(assemblyTimeLeft % 60).padStart(2, '0')}</strong><div><i style={{ width: `${(assemblyTimeLeft / 60) * 100}%` }} /></div></div>
+          <div className="assembly-team-tabs">
+            {teamNames.map((name, index) => (
+              <button className={`${colors[index]} ${activeAssemblyTeam === index ? 'active' : ''} ${assemblyCompleted[index] ? 'completed' : ''}`} disabled={activeAssemblyTeam !== index || assemblyCompleted[index]} key={index}>
+                <span>0{index + 1}</span><strong>{name || `Nhóm ${index + 1}`}</strong>{assemblyCompleted[index] ? assemblyCorrect[index] ? <Check /> : <Clock3 /> : <small>{teamSentences[index].length}/10</small>}
+              </button>
+            ))}
           </div>
-          <p>Chỉ số sức mạnh tổng hợp: <strong>{totalScore}/100</strong></p>
-          <div className="result-actions">
-            <button onClick={restart}><RotateCcw /> Chơi lại</button>
-            <button className="accent" onClick={() => navigate('quiz')}>Thử sức với quiz <BrainCircuit /></button>
+          <div className="active-vault-label"><span>Đang ghép câu của</span><strong>{teamNames[activeAssemblyTeam] || `Nhóm ${activeAssemblyTeam + 1}`}</strong></div>
+          <div className={`sentence-dropzone ${assemblyError ? 'has-error' : ''} ${assemblyCompleted[activeAssemblyTeam] ? 'is-complete' : ''}`}>
+            {teamSentences[activeAssemblyTeam].length === 0 && <span className="drop-placeholder">Câu trả lời của nhóm sẽ xuất hiện ở đây...</span>}
+            {teamSentences[activeAssemblyTeam].map((id, index) => <button disabled={assemblyCompleted[activeAssemblyTeam]} onClick={() => removeWord(id)} key={`${activeAssemblyTeam}-${id}`}><small>{index + 1}</small>{teamQuotes[activeAssemblyTeam].fragments[id]}{!assemblyCompleted[activeAssemblyTeam] && <X />}</button>)}
           </div>
+          {assemblyError && <div className="assembly-message"><X /> Thứ tự chưa chính xác. Hãy đọc lại câu và thử sắp xếp nhé!</div>}
+          <div className={`single-team-vault ${colors[activeAssemblyTeam]}`}>
+            <header><span>Kho chữ riêng · 10 mảnh</span><strong>{teamNames[activeAssemblyTeam] || `Nhóm ${activeAssemblyTeam + 1}`}</strong></header>
+            <div>
+              {teamQuotes[activeAssemblyTeam].shuffle.map((id) => (
+                <button className={teamSentences[activeAssemblyTeam].includes(id) ? 'used' : ''} disabled={teamSentences[activeAssemblyTeam].includes(id) || assemblyCompleted[activeAssemblyTeam]} onClick={() => addWord(id)} key={`${activeAssemblyTeam}-vault-${id}`}>
+                  <span>{teamQuotes[activeAssemblyTeam].fragments[id]}</span><small>Nhấn để chọn</small>
+                </button>
+              ))}
+            </div>
+          </div>
+          <button className="check-sentence" disabled={teamSentences[activeAssemblyTeam].length !== 10} onClick={checkSentence}><Check /> Kiểm tra câu của nhóm</button>
+        </section>
+      )}
+
+      {stage === 'result' && (
+        <section className="group-game-shell final-stage">
+          <div className="result-medal"><Trophy /></div>
+          <div className="section-kicker light"><span>★</span>{gameEndReason === 'early' ? ' Trả lời tổng chính xác' : ' Hoàn thành thử thách'}</div>
+          <h1>{gameEndReason === 'early' && earlyWinnerTeam !== null ? <>{teamNames[earlyWinnerTeam] || `Nhóm ${earlyWinnerTeam + 1}`}<br /><em>giành chiến thắng!</em></> : assemblyCorrect.every(Boolean) ? <>Cả bốn nhóm<br /><em>đều thành công!</em></> : <>Đã hoàn thành<br /><em>thử thách!</em></>}</h1>
+          <div className={`final-quotes ${gameEndReason === 'early' ? 'early-all-quotes' : ''}`}>
+            {teamQuotes.map((item, index) => (
+              <blockquote className={`${colors[index]} ${gameEndReason === 'early' && earlyWinnerTeam === index ? 'decisive' : ''}`} key={item.quote}>
+                <span>{gameEndReason === 'early' ? mascotOptions[teamMascots[index]].emoji : assemblyCorrect[index] ? <Check /> : <Clock3 />}</span>
+                <div><small>{teamNames[index] || `Nhóm ${index + 1}`} · {gameEndReason === 'early' ? earlyWinnerTeam === index ? 'Trả lời đúng — câu quyết định' : 'Câu trả lời tổng' : assemblyCorrect[index] ? 'Ghép đúng' : 'Hết thời gian'}</small><p>“{item.quote}”</p></div>
+              </blockquote>
+            ))}
+          </div>
+          <div className="ranking-title"><span>Bảng xếp hạng chung cuộc</span><small>Sắp xếp theo tổng điểm</small></div>
+          <div className="final-scoreboard">
+            {rankedTeams.map((team, rankIndex) => <div className={`${colors[team.teamIndex]} ${rankIndex === 0 ? 'winner' : ''}`} key={team.teamIndex}><small className="rank-number">Hạng {rankIndex + 1}</small><span className="final-mascot">{mascotOptions[teamMascots[team.teamIndex]].emoji}</span><strong>{team.name}</strong><b>{team.score} điểm</b>{rankIndex === 0 && <Trophy />}</div>)}
+          </div>
+          <p className="winner-line">Dẫn đầu: <strong>{winners.join(' & ')}</strong></p>
+          <div className="result-actions"><button onClick={restart}><RotateCcw /> Chơi lại</button><button className="accent" onClick={() => navigate('quiz')}>Sang trang Quiz <BrainCircuit /></button></div>
         </section>
       )}
     </main>

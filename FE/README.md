@@ -6,7 +6,7 @@ Gồm ba trang:
 
 - `#presentation`: nội dung thuyết trình dạng triển lãm số.
 - `#quiz`: 8 câu hỏi trắc nghiệm có giải thích và chấm điểm.
-- `#game`: game ra quyết định, cân bằng tổ chức, chiến lược và hậu cần.
+- `#game`: trò chơi cho 4 nhóm trả lời câu hỏi, thu thập từ khóa và ghép thành câu kết luận.
 
 ## Chạy dự án
 
