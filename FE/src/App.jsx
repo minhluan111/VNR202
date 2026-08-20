@@ -1,18 +1,28 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowDown,
+  ArrowLeft,
   ArrowRight,
+  Award,
   BrainCircuit,
   BookOpen,
   Boxes,
   Check,
   ChevronDown,
+  ChevronUp,
   CircleHelp,
   Clock3,
+  Copy,
+  Flame,
   Flag,
   Gamepad2,
   Gauge,
+  HelpCircle,
+  Info,
   Lightbulb,
+  Maximize2,
+  Medal,
+  Minimize2,
   Menu,
   PackageOpen,
   RotateCcw,
@@ -22,8 +32,299 @@ import {
   Target,
   Trophy,
   Users,
+  Volume2,
+  VolumeX,
   X,
+  Zap,
 } from 'lucide-react';
+
+const SoundFx = {
+  ctx: null,
+  isMuted: false,
+  getContext() {
+    if (!this.ctx && typeof window !== 'undefined') {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) this.ctx = new AudioCtx();
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+    return this.ctx;
+  },
+  toggleMute() {
+    this.isMuted = !this.isMuted;
+    return this.isMuted;
+  },
+  playClick() {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.getContext();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, ctx.currentTime);
+      gain.gain.setValueAtTime(0.04, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.05);
+    } catch (_) {}
+  },
+  playCorrect() {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.getContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(523.25, now);
+      osc.frequency.setValueAtTime(659.25, now + 0.07);
+      osc.frequency.setValueAtTime(783.99, now + 0.14);
+      osc.frequency.setValueAtTime(1046.50, now + 0.21);
+      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.5);
+    } catch (_) {}
+  },
+  playWrong() {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.getContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(200, now);
+      osc.frequency.setValueAtTime(150, now + 0.12);
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } catch (_) {}
+  },
+  playTick() {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.getContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(900, now);
+      gain.gain.setValueAtTime(0.04, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.04);
+    } catch (_) {}
+  },
+  playVictory() {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.getContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const notes = [
+        { f: 523.25, t: 0, d: 0.1 },
+        { f: 659.25, t: 0.1, d: 0.1 },
+        { f: 783.99, t: 0.2, d: 0.1 },
+        { f: 1046.50, t: 0.3, d: 0.35 },
+        { f: 880.00, t: 0.7, d: 0.12 },
+        { f: 1046.50, t: 0.85, d: 0.5 },
+      ];
+      notes.forEach(({ f, t, d }) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(f, now + t);
+        gain.gain.setValueAtTime(0.15, now + t);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + t + d);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + t);
+        osc.stop(now + t + d);
+      });
+    } catch (_) {}
+  },
+};
+
+const strategicPoints = [
+  {
+    id: 1,
+    title: 'Đồng bằng Bắc Bộ',
+    code: 'p1',
+    troops: '44 tiểu đoàn cơ động',
+    desc: 'Trung tâm cơ động chiến lược ban đầu của Kế hoạch Nava nhằm bình định và nắm quyền chủ động chiến trường.',
+  },
+  {
+    id: 2,
+    title: 'Điện Biên Phủ',
+    code: 'p2',
+    troops: '16.200 quân tinh nhuệ',
+    desc: 'Pháp buộc phải nhảy dù chiếm đóng ngày 20.11.1953 để bảo vệ Thượng Lào khi ta chủ động tiến công lên Tây Bắc.',
+  },
+  {
+    id: 3,
+    title: 'Sê-nô (Trung Lào)',
+    code: 'p3',
+    troops: 'Tháng 12.1953',
+    desc: 'Liên quân Việt - Lào tiến công Trung Lào, giải phóng Thà-khẹt, buộc Pháp phải điều quân cơ động cứu nguy Sê-nô.',
+  },
+  {
+    id: 4,
+    title: 'Luông Pha-băng (Thượng Lào)',
+    code: 'p4',
+    troops: 'Tháng 01.1954',
+    desc: 'Quân ta tiến công lưu vực sông Nậm Hu, giải phóng Phong-xa-lỳ, uy hiếp trực tiếp Luông Pha-băng và Mường Sài.',
+  },
+  {
+    id: 5,
+    title: 'Plây Cu (Bắc Tây Nguyên)',
+    code: 'p5',
+    troops: 'Tháng 02.1954',
+    desc: 'Ta tiến công giải phóng thị xã Kon Tum, bao vây Plây Cu, đập tan âm mưu đánh chiếm vùng tự do Liên khu 5 của địch.',
+  },
+];
+
+function ConfettiCanvas() {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    const onResize = () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', onResize);
+
+    const colors = ['#b33b2e', '#d0a74b', '#71a282', '#718fac', '#f1ead9', '#e6c671', '#ffffff'];
+    const particles = Array.from({ length: 90 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height - height,
+      size: Math.random() * 8 + 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      speedY: Math.random() * 3 + 2,
+      speedX: Math.random() * 2 - 1,
+      rotation: Math.random() * 360,
+      rotationSpeed: Math.random() * 8 - 4,
+      shape: Math.random() > 0.4 ? 'rect' : 'circle',
+    }));
+
+    let animId;
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+      particles.forEach((p) => {
+        p.y += p.speedY;
+        p.x += p.speedX;
+        p.rotation += p.rotationSpeed;
+        if (p.y > height) {
+          p.y = -20;
+          p.x = Math.random() * width;
+        }
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rotation * Math.PI) / 180);
+        ctx.fillStyle = p.color;
+        if (p.shape === 'rect') {
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      });
+      animId = requestAnimationFrame(render);
+    };
+
+    render();
+    const timer = setTimeout(() => {
+      cancelAnimationFrame(animId);
+      if (ctx) ctx.clearRect(0, 0, width, height);
+    }, 6500);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      clearTimeout(timer);
+      window.removeEventListener('resize', onResize);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="confetti-canvas" aria-hidden="true" />;
+}
+
+function ScrollProgressBar() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      if (total <= 0) {
+        setProgress(0);
+        return;
+      }
+      const current = Math.min(100, Math.max(0, (window.scrollY / total) * 100));
+      setProgress(current);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <div className="scroll-progress-container" aria-hidden="true">
+      <div className="scroll-progress-bar" style={{ width: `${progress}%` }} />
+    </div>
+  );
+}
+
+function BackToTopButton() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setVisible(window.scrollY > 450);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  if (!visible) return null;
+
+  return (
+    <button
+      className="back-to-top-btn"
+      onClick={() => {
+        SoundFx.playClick();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }}
+      aria-label="Về đầu trang"
+      title="Về đầu trang"
+    >
+      <ChevronUp size={20} />
+      <span>Đầu trang</span>
+    </button>
+  );
+}
 
 const milestones = [
   {
@@ -278,72 +579,6 @@ const presentationChapters = [
   },
 ];
 
-const quizQuestions = [
-  {
-    question: 'Luận điểm cốt lõi về thắng lợi năm 1954 là gì?',
-    options: [
-      'Kết quả của một trận đánh bất ngờ',
-      'Kết quả của sức mạnh quân sự đơn thuần',
-      'Điểm kết tụ của tổ chức, chiến lược và nguồn lực toàn dân',
-      'Hoàn toàn nhờ vào viện trợ quốc tế',
-    ],
-    correct: 2,
-    explanation: 'Thắng lợi là kết quả của cả quá trình tích lũy sức mạnh tổng hợp trong giai đoạn 1951–1954.',
-  },
-  {
-    question: 'Đại hội đại biểu toàn quốc lần thứ II của Đảng diễn ra vào thời gian nào?',
-    options: ['Tháng 2 năm 1951', 'Tháng 9 năm 1952', 'Tháng 5 năm 1953', 'Tháng 3 năm 1954'],
-    correct: 0,
-    explanation: 'Đại hội II diễn ra tháng 2 năm 1951 tại Chiêm Hóa, Tuyên Quang.',
-  },
-  {
-    question: 'Mục tiêu chính của kế hoạch tác chiến Đông–Xuân 1953–1954 là gì?',
-    options: [
-      'Phòng thủ cố định tại Việt Bắc',
-      'Buộc Pháp phân tán lực lượng để đối phó',
-      'Tập trung toàn bộ lực lượng ở đồng bằng',
-      'Chỉ tiến công tại Điện Biên Phủ',
-    ],
-    correct: 1,
-    explanation: 'Ta tiến công những hướng quan trọng nơi địch tương đối yếu, phá thế tập trung của Kế hoạch Nava.',
-  },
-  {
-    question: 'Điểm yếu quyết định của tập đoàn cứ điểm Điện Biên Phủ là gì?',
-    options: [
-      'Không có công sự phòng ngự',
-      'Thiếu lực lượng bộ binh',
-      'Bị cô lập và phụ thuộc tiếp tế đường không',
-      'Không có sở chỉ huy',
-    ],
-    correct: 2,
-    explanation: 'Điện Biên Phủ nằm xa hậu phương Pháp và phụ thuộc chủ yếu vào tiếp tế qua sân bay Mường Thanh.',
-  },
-  {
-    question: 'Phương châm tác chiến cuối cùng tại Điện Biên Phủ là gì?',
-    options: ['Đánh nhanh, thắng nhanh', 'Đánh chắc, tiến chắc', 'Vây điểm, diệt viện', 'Tiến công chớp nhoáng'],
-    correct: 1,
-    explanation: 'Quyết định chuyển sang “đánh chắc, tiến chắc” thể hiện sự tôn trọng thực tế và ưu tiên chắc thắng.',
-  },
-  {
-    question: 'Khoảng bao nhiêu dân công được huy động phục vụ chiến dịch?',
-    options: ['26.100', '126.000', '261.000', '621.000'],
-    correct: 2,
-    explanation: 'Khoảng 261.000 dân công cùng hơn 20.000 xe đạp thồ đã tạo nên kỳ tích hậu cần.',
-  },
-  {
-    question: 'Chiến dịch Điện Biên Phủ kéo dài bao nhiêu ngày đêm?',
-    options: ['36 ngày đêm', '46 ngày đêm', '56 ngày đêm', '66 ngày đêm'],
-    correct: 2,
-    explanation: 'Chiến dịch diễn ra từ ngày 13/3 đến ngày 7/5/1954, tổng cộng 56 ngày đêm.',
-  },
-  {
-    question: 'Hiệp định Genève về Đông Dương được ký vào ngày nào?',
-    options: ['7/5/1954', '21/7/1954', '2/9/1954', '10/10/1954'],
-    correct: 1,
-    explanation: 'Ngày 21/7/1954, các văn bản của Hiệp định Genève về Đông Dương được ký kết.',
-  },
-];
-
 const gameScenarios = [
   {
     year: '1951',
@@ -583,6 +818,13 @@ function randomizeQuestionBank(bank) {
 
 function SiteHeader({ current, navigate }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMuted, setIsMuted] = useState(SoundFx.isMuted);
+
+  const pageItems = [
+    ['presentation', 'Thuyết trình', Flag],
+    ['game', 'Game chiến lược', Gamepad2],
+  ];
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
@@ -590,23 +832,60 @@ function SiteHeader({ current, navigate }) {
   }, [menuOpen]);
 
   const choosePage = (page) => {
+    SoundFx.playClick();
     setMenuOpen(false);
     navigate(page);
   };
 
+  const toggleFullscreen = () => {
+    SoundFx.playClick();
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().then(() => setIsFullscreen(true)).catch(() => {});
+    } else {
+      document.exitFullscreen?.().then(() => setIsFullscreen(false)).catch(() => {});
+    }
+  };
+
+  const toggleSound = () => {
+    const muted = SoundFx.toggleMute();
+    setIsMuted(muted);
+    if (!muted) SoundFx.playClick();
+  };
+
   return (
     <>
-      <header className={`topbar ${current !== 'presentation' ? 'inner-topbar' : ''}`}>
+      <ScrollProgressBar />
+      <header className="topbar">
         <button className="brand" onClick={() => choosePage('presentation')} aria-label="Về trang thuyết trình">
           <span className="brand-mark"><Flag size={17} fill="currentColor" /></span>
           <span><strong>Đường tới Điện Biên Phủ</strong><small>Học · Hiểu · Tương tác</small></span>
         </button>
         <nav className="desktop-nav page-nav" aria-label="Chọn trang">
           {pageItems.map(([id, label, Icon]) => (
-            <button className={current === id ? 'active' : ''} onClick={() => choosePage(id)} key={id}><Icon size={14} />{label}</button>
+            <button className={current === id ? 'active' : ''} onClick={() => choosePage(id)} key={id}>
+              <Icon size={14} />{label}
+            </button>
           ))}
         </nav>
-        <button className="menu-button" onClick={() => setMenuOpen(true)} aria-label="Mở menu"><Menu /></button>
+        <div className="header-controls">
+          <button
+            className="control-btn"
+            onClick={toggleSound}
+            aria-label={isMuted ? 'Bật âm thanh' : 'Tắt âm thanh'}
+            title={isMuted ? 'Bật âm thanh' : 'Tắt âm thanh'}
+          >
+            {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+          </button>
+          <button
+            className="control-btn desktop-only"
+            onClick={toggleFullscreen}
+            aria-label={isFullscreen ? 'Thu nhỏ màn hình' : 'Toàn màn hình'}
+            title={isFullscreen ? 'Thu nhỏ màn hình' : 'Toàn màn hình'}
+          >
+            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+          </button>
+          <button className="menu-button" onClick={() => setMenuOpen(true)} aria-label="Mở menu"><Menu /></button>
+        </div>
       </header>
 
       <div className={`mobile-menu ${menuOpen ? 'open' : ''}`} aria-hidden={!menuOpen}>
@@ -620,7 +899,39 @@ function SiteHeader({ current, navigate }) {
 }
 
 function FullPresentationContent() {
-  const jumpToChapter = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const [activeChapter, setActiveChapter] = useState('boi-canh');
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + 220;
+      for (let i = presentationChapters.length - 1; i >= 0; i--) {
+        const chapter = presentationChapters[i];
+        const el = document.getElementById(chapter.id);
+        if (el && el.offsetTop <= scrollPosition) {
+          setActiveChapter(chapter.id);
+          break;
+        }
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const jumpToChapter = (id) => {
+    setActiveChapter(id);
+    const el = document.getElementById(id);
+    if (!el) return;
+    const topbar = document.querySelector('.topbar');
+    const topbarHeight = topbar ? topbar.offsetHeight : 72;
+    const storyNav = document.querySelector('.story-nav');
+    const storyNavHeight = storyNav ? storyNav.offsetHeight : 60;
+    const totalOffset = topbarHeight + storyNavHeight + 16;
+    const elementPosition = el.getBoundingClientRect().top + window.pageYOffset;
+    window.scrollTo({
+      top: elementPosition - totalOffset,
+      behavior: 'smooth',
+    });
+  };
 
   return (
     <section className="full-story section-pad" id="noi-dung-day-du">
@@ -634,7 +945,14 @@ function FullPresentationContent() {
 
       <nav className="story-nav" aria-label="Mục lục nội dung thuyết trình">
         {presentationChapters.map((chapter) => (
-          <button onClick={() => jumpToChapter(chapter.id)} key={chapter.id}><span>{chapter.number}</span>{chapter.label}</button>
+          <button
+            className={activeChapter === chapter.id ? 'active' : ''}
+            onClick={() => jumpToChapter(chapter.id)}
+            key={chapter.id}
+          >
+            <span>{chapter.number}</span>
+            {chapter.label}
+          </button>
         ))}
       </nav>
 
@@ -663,6 +981,13 @@ function FullPresentationContent() {
 function PresentationPage({ navigate }) {
   const [activeYear, setActiveYear] = useState('1951');
   const [activePhase, setActivePhase] = useState(1);
+  const [expandAllPhases, setExpandAllPhases] = useState(false);
+  const [activePoint, setActivePoint] = useState(strategicPoints[0]);
+
+  const activeYearIndex = useMemo(
+    () => milestones.findIndex((item) => item.year === activeYear),
+    [activeYear],
+  );
 
   const milestone = useMemo(
     () => milestones.find((item) => item.year === activeYear) ?? milestones[0],
@@ -670,7 +995,30 @@ function PresentationPage({ navigate }) {
   );
 
   const goTo = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    SoundFx.playClick();
+    if (id === 'top') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    const el = document.getElementById(id);
+    if (!el) return;
+    const topbar = document.querySelector('.topbar');
+    const topbarHeight = topbar ? topbar.offsetHeight : 72;
+    const elementPosition = el.getBoundingClientRect().top + window.pageYOffset;
+    window.scrollTo({
+      top: elementPosition - topbarHeight - 14,
+      behavior: 'smooth',
+    });
+  };
+
+  const handleYearChange = (year) => {
+    SoundFx.playClick();
+    setActiveYear(year);
+  };
+
+  const handlePointSelect = (point) => {
+    SoundFx.playClick();
+    setActivePoint(point);
   };
 
   return (
@@ -726,7 +1074,7 @@ function PresentationPage({ navigate }) {
             <button
               key={item.year}
               className={activeYear === item.year ? 'active' : ''}
-              onClick={() => setActiveYear(item.year)}
+              onClick={() => handleYearChange(item.year)}
               role="tab"
               aria-selected={activeYear === item.year}
             >
@@ -743,6 +1091,22 @@ function PresentationPage({ navigate }) {
             <div className="meta"><span>{milestone.date}</span><span>{milestone.tag}</span></div>
             <h3>{milestone.title}</h3>
             <p>{milestone.text}</p>
+            <div className="milestone-nav-buttons">
+              <button
+                className="milestone-nav-btn"
+                disabled={activeYearIndex <= 0}
+                onClick={() => handleYearChange(milestones[activeYearIndex - 1].year)}
+              >
+                <ArrowLeft size={14} /> Mốc trước ({activeYearIndex > 0 ? milestones[activeYearIndex - 1].year : ''})
+              </button>
+              <button
+                className="milestone-nav-btn"
+                disabled={activeYearIndex >= milestones.length - 1}
+                onClick={() => handleYearChange(milestones[activeYearIndex + 1].year)}
+              >
+                Mốc tiếp theo ({activeYearIndex < milestones.length - 1 ? milestones[activeYearIndex + 1].year : ''}) <ArrowRight size={14} />
+              </button>
+            </div>
           </div>
           <BookOpen className="milestone-icon" />
         </article>
@@ -755,15 +1119,31 @@ function PresentationPage({ navigate }) {
           <p>Kế hoạch Nava muốn tập trung sức mạnh ở đồng bằng Bắc Bộ. Ta chọn tiến công những hướng quan trọng mà địch tương đối yếu, buộc họ phải chia lực lượng cơ động để đối phó.</p>
           <div className="nava-stat"><strong>44<small>/84</small></strong><p>tiểu đoàn cơ động Pháp ban đầu tập trung tại đồng bằng Bắc Bộ</p></div>
         </div>
-        <div className="disperse-map" aria-label="Năm nơi quân Pháp buộc phải phân tán">
-          <div className="map-head"><Route size={18} /><span>5 điểm phân tán chiến lược</span></div>
-          <div className="map-center">Kế hoạch<br /><strong>NAVA</strong></div>
-          <div className="map-point p1"><span>01</span>Đồng bằng Bắc Bộ</div>
-          <div className="map-point p2"><span>02</span>Điện Biên Phủ</div>
-          <div className="map-point p3"><span>03</span>Sê-nô</div>
-          <div className="map-point p4"><span>04</span>Luông Pha-băng</div>
-          <div className="map-point p5"><span>05</span>Plây Cu</div>
-          <svg viewBox="0 0 600 520" aria-hidden="true"><path d="M300 260 C210 160 160 120 102 90 M300 260 C390 170 440 112 504 91 M300 260 C187 269 129 279 68 302 M300 260 C412 274 460 288 531 327 M300 260 C314 368 322 414 321 470" /></svg>
+        <div className="disperse-map-wrapper">
+          <div className="disperse-map" aria-label="Năm nơi quân Pháp buộc phải phân tán">
+            <div className="map-head"><Route size={18} /><span>5 điểm phân tán chiến lược (Bấm chọn điểm để xem)</span></div>
+            <div className="map-center">Kế hoạch<br /><strong>NAVA</strong></div>
+            {strategicPoints.map((point) => (
+              <button
+                key={point.id}
+                className={`map-point ${point.code} ${activePoint.id === point.id ? 'active-point' : ''}`}
+                onClick={() => handlePointSelect(point)}
+                aria-label={`Xem chi tiết ${point.title}`}
+              >
+                <span>0{point.id}</span>
+                {point.title}
+              </button>
+            ))}
+            <svg viewBox="0 0 600 520" aria-hidden="true"><path d="M300 260 C210 160 160 120 102 90 M300 260 C390 170 440 112 504 91 M300 260 C187 269 129 279 68 302 M300 260 C412 274 460 288 531 327 M300 260 C314 368 322 414 321 470" /></svg>
+          </div>
+          <div className="point-detail-card" key={activePoint.id}>
+            <div className="point-detail-head">
+              <span className="point-tag">Điểm phân tán 0{activePoint.id}</span>
+              <strong>{activePoint.troops}</strong>
+            </div>
+            <h4>{activePoint.title}</h4>
+            <p>{activePoint.desc}</p>
+          </div>
         </div>
       </section>
 
@@ -804,18 +1184,36 @@ function PresentationPage({ navigate }) {
           <div className="section-kicker light"><span>06</span> Chiến dịch Điện Biên Phủ</div>
           <h2>56 ngày đêm<br /><em>chấn động địa cầu.</em></h2>
           <div className="campaign-total"><strong>13.03</strong><span>→</span><strong>07.05.1954</strong></div>
+          <button
+            className="toggle-phases-btn"
+            onClick={() => {
+              SoundFx.playClick();
+              setExpandAllPhases((current) => !current);
+            }}
+          >
+            {expandAllPhases ? 'Thu gọn các đợt' : 'Mở rộng toàn bộ 3 đợt'}
+          </button>
         </div>
         <div className="phases">
-          {phases.map((phase) => (
-            <article className={activePhase === phase.id ? 'phase open' : 'phase'} key={phase.id}>
-              <button onClick={() => setActivePhase(phase.id)} aria-expanded={activePhase === phase.id}>
-                <span className="phase-number">0{phase.id}</span>
-                <span className="phase-title"><small>Đợt {phase.id} · {phase.dates}</small><strong>{phase.title}</strong></span>
-                <ChevronDown />
-              </button>
-              <div className="phase-body"><div><span>Trọng điểm</span><strong>{phase.places}</strong></div><p>{phase.text}</p></div>
-            </article>
-          ))}
+          {phases.map((phase) => {
+            const isOpen = expandAllPhases || activePhase === phase.id;
+            return (
+              <article className={isOpen ? 'phase open' : 'phase'} key={phase.id}>
+                <button
+                  onClick={() => {
+                    SoundFx.playClick();
+                    setActivePhase(phase.id);
+                  }}
+                  aria-expanded={isOpen}
+                >
+                  <span className="phase-number">0{phase.id}</span>
+                  <span className="phase-title"><small>Đợt {phase.id} · {phase.dates}</small><strong>{phase.title}</strong></span>
+                  <ChevronDown />
+                </button>
+                <div className="phase-body"><div><span>Trọng điểm</span><strong>{phase.places}</strong></div><p>{phase.text}</p></div>
+              </article>
+            );
+          })}
         </div>
         <div className="victory-line"><Flag fill="currentColor" /><p><strong>17:30 · 07.05.1954</strong><span>Sở chỉ huy địch bị chiếm. Chiến dịch toàn thắng.</span></p></div>
       </section>
@@ -853,98 +1251,10 @@ function PresentationPage({ navigate }) {
       <footer>
         <div className="footer-brand"><Flag fill="currentColor" /><span><strong>Đường tới Điện Biên Phủ</strong><small>1951 — 1954</small></span></div>
         <p>Nội dung được xây dựng từ tài liệu học tập<br />“Đẩy mạnh cuộc kháng chiến đến thắng lợi”.</p>
-        <button onClick={() => goTo('top')}>Về đầu trang <ArrowDown className="up-arrow" size={16} /></button>
+        
       </footer>
-    </main>
-  );
-}
 
-function QuizPage({ navigate }) {
-  const [index, setIndex] = useState(0);
-  const [answers, setAnswers] = useState({});
-  const [finished, setFinished] = useState(false);
-  const question = quizQuestions[index];
-  const selected = answers[index];
-  const score = quizQuestions.reduce((total, item, itemIndex) => total + (answers[itemIndex] === item.correct ? 1 : 0), 0);
-
-  const selectAnswer = (optionIndex) => {
-    if (selected !== undefined) return;
-    setAnswers((current) => ({ ...current, [index]: optionIndex }));
-  };
-
-  const nextQuestion = () => {
-    if (index === quizQuestions.length - 1) setFinished(true);
-    else setIndex((current) => current + 1);
-  };
-
-  const restart = () => {
-    setIndex(0);
-    setAnswers({});
-    setFinished(false);
-  };
-
-  return (
-    <main className="interactive-page quiz-page">
-      <SiteHeader current="quiz" navigate={navigate} />
-      <div className="interactive-glow glow-one" />
-      <div className="interactive-glow glow-two" />
-      {!finished ? (
-        <section className="interactive-shell">
-          <div className="interactive-intro">
-            <div className="section-kicker light"><span>Q</span> Kiểm tra kiến thức</div>
-            <h1>Bạn hiểu hành trình<br /><em>đến đâu?</em></h1>
-            <p>8 câu hỏi · Mỗi câu có một đáp án đúng</p>
-          </div>
-          <div className="quiz-panel">
-            <div className="quiz-progress">
-              <span>Câu {index + 1} / {quizQuestions.length}</span>
-              <div><i style={{ width: `${((index + 1) / quizQuestions.length) * 100}%` }} /></div>
-              <strong>{Math.round(((index + 1) / quizQuestions.length) * 100)}%</strong>
-            </div>
-            <article className="question-card" key={index}>
-              <div className="question-index"><CircleHelp /> Câu hỏi 0{index + 1}</div>
-              <h2>{question.question}</h2>
-              <div className="answer-list">
-                {question.options.map((option, optionIndex) => {
-                  let className = '';
-                  if (selected !== undefined && optionIndex === question.correct) className = 'correct';
-                  else if (selected === optionIndex) className = 'wrong';
-                  return (
-                    <button className={className} onClick={() => selectAnswer(optionIndex)} key={option}>
-                      <span>{String.fromCharCode(65 + optionIndex)}</span>
-                      <strong>{option}</strong>
-                      {className === 'correct' && <Check />}
-                      {className === 'wrong' && <X />}
-                    </button>
-                  );
-                })}
-              </div>
-              {selected !== undefined && (
-                <div className={`answer-feedback ${selected === question.correct ? 'is-correct' : 'is-wrong'}`} aria-live="polite">
-                  <strong>{selected === question.correct ? 'Chính xác!' : 'Chưa chính xác'}</strong>
-                  <p>{question.explanation}</p>
-                </div>
-              )}
-              <div className="quiz-actions">
-                <span>Điểm hiện tại: <strong>{score}</strong></span>
-                <button disabled={selected === undefined} onClick={nextQuestion}>{index === quizQuestions.length - 1 ? 'Xem kết quả' : 'Câu tiếp theo'} <ArrowRight /></button>
-              </div>
-            </article>
-          </div>
-        </section>
-      ) : (
-        <section className="result-screen">
-          <div className="result-medal"><Trophy /></div>
-          <div className="section-kicker light"><span>✓</span> Hoàn thành quiz</div>
-          <h1>{score >= 7 ? 'Xuất sắc!' : score >= 5 ? 'Rất tốt!' : 'Cùng ôn lại nhé!'}</h1>
-          <div className="score-ring"><strong>{score}</strong><span>/ {quizQuestions.length}</span></div>
-          <p>{score >= 7 ? 'Bạn đã nắm rất chắc hành trình đi đến thắng lợi năm 1954.' : 'Mỗi lần ôn tập là một lần hiểu lịch sử sâu hơn.'}</p>
-          <div className="result-actions">
-            <button onClick={restart}><RotateCcw /> Làm lại</button>
-            <button className="accent" onClick={() => navigate('game')}>Chơi game chiến lược <Gamepad2 /></button>
-          </div>
-        </section>
-      )}
+      <BackToTopButton />
     </main>
   );
 }
@@ -952,6 +1262,7 @@ function QuizPage({ navigate }) {
 function GamePage({ navigate }) {
   const colors = ['red', 'gold', 'green', 'blue'];
   const [stage, setStage] = useState('setup');
+  const [showRulesModal, setShowRulesModal] = useState(false);
   const [teamNames, setTeamNames] = useState(['Nhóm 1', 'Nhóm 2', 'Nhóm 3', 'Nhóm 4']);
   const [teamMascots, setTeamMascots] = useState([0, 1, 2, 3]);
   const [teamOrder, setTeamOrder] = useState([0, 1, 2, 3]);
@@ -980,6 +1291,8 @@ function GamePage({ navigate }) {
   const [earlyAttemptUsed, setEarlyAttemptUsed] = useState([false, false, false, false]);
   const [gameEndReason, setGameEndReason] = useState(null);
   const [earlyWinnerTeam, setEarlyWinnerTeam] = useState(null);
+  const [copyToast, setCopyToast] = useState(false);
+
   const currentTeam = teamOrder[questionIndex % 4];
   const currentRound = Math.floor(questionIndex / 4);
   const currentQuestion = randomQuestions[questionIndex];
@@ -1000,9 +1313,13 @@ function GamePage({ navigate }) {
   useEffect(() => {
     if (stage !== 'questions' || questionPhase !== 'answering' || earlyAnswerTeam !== null || feedback?.correct || feedback?.timeout) return undefined;
     if (timeLeft <= 0) {
+      SoundFx.playWrong();
       setCollectedWords((current) => current.map((words, index) => index === currentTeam && !words.includes(currentRound) ? [...words, currentRound] : words));
       setFeedback({ correct: false, timeout: true });
       return undefined;
+    }
+    if (timeLeft <= 5) {
+      SoundFx.playTick();
     }
     const timer = window.setTimeout(() => setTimeLeft((current) => current - 1), 1000);
     return () => window.clearTimeout(timer);
@@ -1011,22 +1328,37 @@ function GamePage({ navigate }) {
   useEffect(() => {
     if (earlyAnswerTeam === null || earlyAnswerFeedback?.correct || earlyAnswerFeedback?.timeout) return undefined;
     if (earlyAnswerTime <= 0) {
+      SoundFx.playWrong();
       setEarlyAnswerFeedback({ correct: false, timeout: true });
       return undefined;
+    }
+    if (earlyAnswerTime <= 5) {
+      SoundFx.playTick();
     }
     const timer = window.setTimeout(() => setEarlyAnswerTime((current) => current - 1), 1000);
     return () => window.clearTimeout(timer);
   }, [earlyAnswerTeam, earlyAnswerTime, earlyAnswerFeedback?.correct, earlyAnswerFeedback?.timeout]);
 
   useEffect(() => {
+    if (earlyAnswerTeam === null) return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') closeEarlyAnswer();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [earlyAnswerTeam]);
+
+  useEffect(() => {
     if (stage !== 'assemble' || assemblyCompleted[activeAssemblyTeam]) return undefined;
     if (assemblyTimeLeft <= 0) {
+      SoundFx.playWrong();
       const completed = assemblyCompleted.map((value, index) => index === activeAssemblyTeam ? true : value);
       setAssemblyCompleted(completed);
       const nextTeam = teamOrder.find((teamIndex) => !completed[teamIndex]);
       if (nextTeam === undefined) {
         setGameEndReason('assembly');
         setStage('result');
+        SoundFx.playVictory();
       }
       else {
         setActiveAssemblyTeam(nextTeam);
@@ -1034,11 +1366,15 @@ function GamePage({ navigate }) {
       }
       return undefined;
     }
+    if (assemblyTimeLeft <= 5) {
+      SoundFx.playTick();
+    }
     const timer = window.setTimeout(() => setAssemblyTimeLeft((current) => current - 1), 1000);
     return () => window.clearTimeout(timer);
   }, [stage, activeAssemblyTeam, assemblyTimeLeft, assemblyCompleted, teamOrder]);
 
   const drawTeamOrder = () => {
+    SoundFx.playClick();
     setIsDrawing(true);
     setOrderDrawn(false);
     window.setTimeout(() => {
@@ -1050,11 +1386,18 @@ function GamePage({ navigate }) {
       setTeamOrder(order);
       setOrderDrawn(true);
       setIsDrawing(false);
-    }, 900);
+      SoundFx.playCorrect();
+    }, 850);
+  };
+
+  const applyHistoricalPresets = () => {
+    SoundFx.playClick();
+    setTeamNames(['Đại Đoàn 312 (Him Lam)', 'Đại Đoàn 308 (Tiên Phong)', 'Đại Đoàn 316 (Đồi A1)', 'Đại Đoàn 351 (Pháo Binh)']);
   };
 
   const startGame = () => {
     if (!orderDrawn) return;
+    SoundFx.playClick();
     setRandomQuestions(randomizeQuestionBank(providedQuestionBank));
     setQuestionPhase('reading');
     setReadingTimeLeft(5);
@@ -1064,6 +1407,7 @@ function GamePage({ navigate }) {
 
   const openEarlyAnswer = (teamIndex) => {
     if (assemblyCompleted[teamIndex] || earlyAttemptUsed[teamIndex]) return;
+    SoundFx.playClick();
     setEarlyAttemptUsed((current) => current.map((value, index) => index === teamIndex ? true : value));
     setEarlyAnswerTeam(teamIndex);
     setEarlyAnswerText('');
@@ -1072,6 +1416,7 @@ function GamePage({ navigate }) {
   };
 
   const closeEarlyAnswer = () => {
+    SoundFx.playClick();
     setEarlyAnswerTeam(null);
     setEarlyAnswerText('');
     setEarlyAnswerFeedback(null);
@@ -1083,6 +1428,7 @@ function GamePage({ navigate }) {
     if (earlyAnswerTeam === null || earlyAnswerTime <= 0) return;
     const correct = normalizeAnswer(earlyAnswerText) === normalizeAnswer(teamQuotes[earlyAnswerTeam].quote);
     if (correct) {
+      SoundFx.playVictory();
       setAssemblyCompleted((current) => current.map((value, index) => index === earlyAnswerTeam ? true : value));
       setAssemblyCorrect((current) => current.map((value, index) => index === earlyAnswerTeam ? true : value));
       setScores((current) => {
@@ -1093,17 +1439,22 @@ function GamePage({ navigate }) {
       setEarlyWinnerTeam(earlyAnswerTeam);
       setGameEndReason('early');
       setStage('result');
-    } else setEarlyAnswerFeedback({ correct: false });
+    } else {
+      SoundFx.playWrong();
+      setEarlyAnswerFeedback({ correct: false });
+    }
   };
 
   const answerQuestion = (optionIndex) => {
     if (questionPhase !== 'answering' || feedback?.correct || feedback?.timeout || timeLeft <= 0 || wrongOptions.includes(optionIndex)) return;
     if (optionIndex === currentQuestion.correct) {
+      SoundFx.playCorrect();
       const points = Math.max(40, 100 - attempts * 25);
       setScores((current) => current.map((score, index) => index === currentTeam ? score + points : score));
       setCollectedWords((current) => current.map((words, index) => index === currentTeam ? [...words, currentRound] : words));
       setFeedback({ correct: true, points });
     } else {
+      SoundFx.playWrong();
       setWrongOptions((current) => [...current, optionIndex]);
       setAttempts((current) => current + 1);
       setFeedback({ correct: false });
@@ -1111,12 +1462,14 @@ function GamePage({ navigate }) {
   };
 
   const nextQuestion = () => {
+    SoundFx.playClick();
     if (!feedback?.correct && !feedback?.timeout) return;
     if (questionIndex === totalQuestions - 1) {
       const nextAssemblyTeam = teamOrder.find((teamIndex) => !assemblyCompleted[teamIndex]);
       if (nextAssemblyTeam === undefined) {
         setGameEndReason('assembly');
         setStage('result');
+        SoundFx.playVictory();
       }
       else {
         setActiveAssemblyTeam(nextAssemblyTeam);
@@ -1133,7 +1486,30 @@ function GamePage({ navigate }) {
     setFeedback(null);
   };
 
+  // Keyboard shortcut listener for question stage
+  useEffect(() => {
+    if (stage !== 'questions' || earlyAnswerTeam !== null) return;
+    const handleKey = (e) => {
+      const targetTag = e.target?.tagName?.toLowerCase();
+      if (targetTag === 'input' || targetTag === 'textarea') return;
+
+      if (questionPhase === 'answering' && !feedback?.correct && !feedback?.timeout && timeLeft > 0) {
+        const key = e.key.toUpperCase();
+        if (['1', 'A'].includes(key) && currentQuestion?.options[0]) answerQuestion(0);
+        else if (['2', 'B'].includes(key) && currentQuestion?.options[1]) answerQuestion(1);
+        else if (['3', 'C'].includes(key) && currentQuestion?.options[2]) answerQuestion(2);
+        else if (['4', 'D'].includes(key) && currentQuestion?.options[3]) answerQuestion(3);
+      } else if ((feedback?.correct || feedback?.timeout) && (e.key === ' ' || e.key === 'Enter')) {
+        e.preventDefault();
+        nextQuestion();
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [stage, questionPhase, feedback, timeLeft, earlyAnswerTeam, currentQuestion]);
+
   const addWord = (id) => {
+    SoundFx.playClick();
     if (!teamSentences[activeAssemblyTeam].includes(id)) {
       setTeamSentences((current) => current.map((words, index) => index === activeAssemblyTeam ? [...words, id] : words));
       setAssemblyError(false);
@@ -1141,18 +1517,22 @@ function GamePage({ navigate }) {
   };
 
   const removeWord = (id) => {
+    SoundFx.playClick();
     setTeamSentences((current) => current.map((words, index) => index === activeAssemblyTeam ? words.filter((wordId) => wordId !== id) : words));
     setAssemblyError(false);
-    setEarlyAnswerTeam(null);
-    setEarlyAnswerText('');
-    setEarlyAnswerTime(60);
-    setEarlyAnswerFeedback(null);
+  };
+
+  const clearSentence = () => {
+    SoundFx.playClick();
+    setTeamSentences((current) => current.map((words, index) => index === activeAssemblyTeam ? [] : words));
+    setAssemblyError(false);
   };
 
   const checkSentence = () => {
     const currentSentence = teamSentences[activeAssemblyTeam];
     const correct = currentSentence.length === 10 && currentSentence.every((id, index) => id === index);
     if (correct) {
+      SoundFx.playCorrect();
       const completed = assemblyCompleted.map((value, index) => index === activeAssemblyTeam ? true : value);
       setAssemblyCorrect((current) => current.map((value, index) => index === activeAssemblyTeam ? true : value));
       setAssemblyCompleted(completed);
@@ -1160,16 +1540,21 @@ function GamePage({ navigate }) {
       if (nextTeam === undefined) {
         setGameEndReason('assembly');
         setStage('result');
+        SoundFx.playVictory();
       }
       else {
         setActiveAssemblyTeam(nextTeam);
         setAssemblyTimeLeft(60);
       }
       setAssemblyError(false);
-    } else setAssemblyError(true);
+    } else {
+      SoundFx.playWrong();
+      setAssemblyError(true);
+    }
   };
 
   const restart = () => {
+    SoundFx.playClick();
     setStage('setup');
     setQuestionIndex(0);
     setScores([0, 0, 0, 0]);
@@ -1199,6 +1584,14 @@ function GamePage({ navigate }) {
     setEarlyWinnerTeam(null);
   };
 
+  const copyResults = () => {
+    SoundFx.playClick();
+    const text = rankedTeams.map((t, idx) => `Hạng ${idx + 1}: ${t.name} — ${t.score} điểm (${mascotOptions[teamMascots[t.teamIndex]].emoji})`).join('\n');
+    navigator.clipboard?.writeText?.(`🏆 BẢNG VÀNG THÀNH TÍCH · GAME CHIẾN LƯỢC ĐIỆN BIÊN PHỦ\n\n${text}\n\nChúc mừng các đại đoàn đã hoàn thành xuất sắc nhiệm vụ!`);
+    setCopyToast(true);
+    setTimeout(() => setCopyToast(false), 2500);
+  };
+
   const highestScore = Math.max(...scores);
   const winners = teamNames.map((name, index) => name || `Nhóm ${index + 1}`).filter((_, index) => scores[index] === highestScore);
   const rankedTeams = teamNames.map((name, index) => ({ name: name || `Nhóm ${index + 1}`, teamIndex: index, score: scores[index] })).sort((first, second) => second.score - first.score);
@@ -1207,12 +1600,72 @@ function GamePage({ navigate }) {
     <main className="interactive-page game-page">
       <SiteHeader current="game" navigate={navigate} />
       <div className="game-grid-bg" />
+      {stage === 'result' && <ConfettiCanvas />}
+
+      {/* Rules Modal */}
+      {showRulesModal && (
+        <div
+          className="rules-modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setShowRulesModal(false)}
+        >
+          <div className="rules-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="rules-close" onClick={() => setShowRulesModal(false)} aria-label="Đóng"><X /></button>
+            <div className="rules-modal-header">
+              <div className="section-kicker light"><span>★</span> Thể lệ trò chơi</div>
+              <h2>Hướng dẫn thi đua 4 nhóm</h2>
+              <p>Chiến thuật hiệp đồng 4 nhóm — Vừa khảo thí kiến thức, vừa mở khóa và sắp xếp thông điệp lịch sử.</p>
+            </div>
+            <div className="rules-modal-grid">
+              <div className="rule-card">
+                <div className="rule-badge">Vòng 1</div>
+                <h3>Khảo thí & Mở mảnh ghép</h3>
+                <ul>
+                  <li><strong>4 nhóm lần lượt</strong> trả lời 40 câu hỏi trắc nghiệm (10 câu mỗi nhóm).</li>
+                  <li><strong>5 giây</strong> đọc đề + <strong>20 giây</strong> bấm chọn đáp án.</li>
+                  <li>Đúng ngay lần 1: <strong className="pts-pos">+100 điểm</strong> & mở 1 mảnh ghép.</li>
+                  <li>Chọn sai: <strong className="pts-neg">-25 điểm</strong> và được quyền thử lại.</li>
+                  <li>Hết 20s: 0 điểm (mảnh ghép vẫn được mở để công bằng ghép câu).</li>
+                </ul>
+              </div>
+              <div className="rule-card">
+                <div className="rule-badge">Vòng 2</div>
+                <h3>Ghép câu trích dẫn</h3>
+                <ul>
+                  <li>Từng nhóm có <strong>60 giây</strong> ghép 10 mảnh thành câu hoàn chỉnh.</li>
+                  <li>Bấm từng từ trong kho để xếp vào vị trí; bấm lại để trả về kho.</li>
+                  <li>Hoàn thành chuẩn xác: <strong className="pts-pos">+150 điểm</strong>.</li>
+                </ul>
+              </div>
+              <div className="rule-card highlight-rule">
+                <div className="rule-badge gold">Chiến thuật đỉnh cao</div>
+                <h3>Đoán sớm (Early Answer)</h3>
+                <ul>
+                  <li>Bất kỳ lúc nào ở <strong>Vòng 1</strong>, nếu nhóm tự tin đã đoán được câu hoàn chỉnh:</li>
+                  <li>Bấm nút <strong>"Trả lời tổng"</strong> (60s nhập câu, duy nhất 1 cơ hội).</li>
+                  <li>Nếu nhập chính xác: nhận ngay <strong className="pts-pos">+500 điểm</strong> và <strong>chiến thắng áp đảo toàn trận!</strong></li>
+                </ul>
+              </div>
+            </div>
+            <button className="rules-ok-btn" onClick={() => setShowRulesModal(false)}>
+              Đã hiểu thể lệ & Sẵn sàng <Check size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
       {stage === 'setup' && (
         <section className="group-game-shell setup-stage">
           <div className="game-title-block">
             <div className="section-kicker light"><span>G</span> Trò chơi dành cho 4 nhóm</div>
             <h1>Nhặt từ khóa,<br /><em>ghép câu lịch sử</em></h1>
-            <p>Mỗi nhóm trả lời 10 câu hỏi để mở khóa 10 mảnh ghép trong kho riêng. Cuối trò chơi, từng nhóm sắp xếp các mảnh thành câu của mình.</p>
+            <p>Mỗi nhóm trả lời 10 câu hỏi để mở khóa 10 mảnh ghép trong kho riêng. Cuối trò chơi, từng nhóm sắp xếp các mảnh thành câu danh ngôn & bài học của mình.</p>
+            <div className="game-feature-badges">
+              <span className="feat-pill"><Users size={13} /> 4 Nhóm thi đua</span>
+              <span className="feat-pill"><Zap size={13} /> Khảo thí 40 câu</span>
+              <span className="feat-pill"><Sparkles size={13} /> Ghép câu danh ngôn</span>
+            </div>
           </div>
           <div className="setup-panel">
             <div className="rules-row">
@@ -1220,10 +1673,28 @@ function GamePage({ navigate }) {
               <div><strong>02</strong><span>Đúng để đưa chữ về kho riêng</span></div>
               <div><strong>03</strong><span>Mỗi nhóm ghép một câu riêng</span></div>
             </div>
-            <h2>Đặt tên cho các nhóm</h2>
+            <div className="setup-head-action">
+              <h2>Đặt tên cho các nhóm</h2>
+              <div className="setup-action-group">
+                <button className="rule-info-btn" onClick={() => setShowRulesModal(true)} title="Xem chi tiết thể lệ">
+                  <Info size={13} /> Thể lệ & Tính điểm
+                </button>
+                <button className="preset-name-btn" onClick={applyHistoricalPresets} title="Điền nhanh tên các Đại đoàn anh hùng">
+                  <Zap size={13} /> Gợi ý tên 4 Đại Đoàn
+                </button>
+              </div>
+            </div>
             <div className="team-inputs">
               {teamNames.map((name, index) => (
-                <label className={colors[index]} key={index}><span>0{index + 1}</span><input value={name} maxLength={18} onChange={(event) => setTeamNames((current) => current.map((team, teamIndex) => teamIndex === index ? event.target.value : team))} /></label>
+                <label className={colors[index]} key={index}>
+                  <span>0{index + 1}</span>
+                  <input
+                    value={name}
+                    maxLength={24}
+                    onChange={(event) => setTeamNames((current) => current.map((team, teamIndex) => teamIndex === index ? event.target.value : team))}
+                    placeholder={`Tên Nhóm ${index + 1}`}
+                  />
+                </label>
               ))}
             </div>
             <h2 className="mascot-title">Chọn linh vật riêng</h2>
@@ -1231,23 +1702,54 @@ function GamePage({ navigate }) {
               {teamNames.map((name, teamIndex) => (
                 <label className={colors[teamIndex]} key={teamIndex}>
                   <span className="mascot-preview">{mascotOptions[teamMascots[teamIndex]].emoji}</span>
-                  <div><small>{name || `Nhóm ${teamIndex + 1}`}</small><select value={teamMascots[teamIndex]} onChange={(event) => setTeamMascots((current) => current.map((mascot, index) => index === teamIndex ? Number(event.target.value) : mascot))}>{mascotOptions.map((mascot, mascotIndex) => <option disabled={teamMascots.includes(mascotIndex) && teamMascots[teamIndex] !== mascotIndex} value={mascotIndex} key={mascot.name}>{mascot.emoji} {mascot.name}</option>)}</select></div>
+                  <div>
+                    <small>{name || `Nhóm ${teamIndex + 1}`}</small>
+                    <select
+                      value={teamMascots[teamIndex]}
+                      onChange={(event) => setTeamMascots((current) => current.map((mascot, index) => index === teamIndex ? Number(event.target.value) : mascot))}
+                    >
+                      {mascotOptions.map((mascot, mascotIndex) => (
+                        <option
+                          disabled={teamMascots.includes(mascotIndex) && teamMascots[teamIndex] !== mascotIndex}
+                          value={mascotIndex}
+                          key={mascot.name}
+                        >
+                          {mascot.emoji} {mascot.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </label>
               ))}
             </div>
             <div className={`order-draw ${isDrawing ? 'drawing' : ''} ${orderDrawn ? 'drawn' : ''}`}>
-              <div className="order-draw-head"><span>Bốc thăm thứ tự chơi</span><small>{orderDrawn ? 'Đã có kết quả' : 'Bắt buộc trước khi bắt đầu'}</small></div>
+              <div className="order-draw-head">
+                <span>Bốc thăm thứ tự chơi</span>
+                <small>{orderDrawn ? '✓ Đã có thứ tự thi đấu' : 'Bắt buộc trước khi bắt đầu'}</small>
+              </div>
               <div className="play-order">
                 {(isDrawing ? [0, 1, 2, 3] : teamOrder).map((teamIndex, orderIndex) => (
                   <div className={isDrawing ? 'mystery' : colors[teamIndex]} key={orderIndex}>
                     <span>Lượt {orderIndex + 1}</span>
-                    <strong>{isDrawing ? '?' : orderDrawn ? <><i>{mascotOptions[teamMascots[teamIndex]].emoji}</i>{teamNames[teamIndex] || `Nhóm ${teamIndex + 1}`}</> : 'Chưa bốc thăm'}</strong>
+                    <strong>
+                      {isDrawing ? '?' : orderDrawn ? (
+                        <>
+                          <i>{mascotOptions[teamMascots[teamIndex]].emoji}</i>
+                          {teamNames[teamIndex] || `Nhóm ${teamIndex + 1}`}
+                        </>
+                      ) : 'Chưa bốc thăm'}
+                    </strong>
                   </div>
                 ))}
               </div>
-              <button className="draw-order-button" disabled={isDrawing} onClick={drawTeamOrder}><Sparkles />{isDrawing ? 'Đang xáo trộn...' : orderDrawn ? 'Bốc thăm lại' : 'Bốc thăm ngay'}</button>
+              <button className="draw-order-button" disabled={isDrawing} onClick={drawTeamOrder}>
+                <Sparkles />
+                {isDrawing ? 'Đang xáo trộn ngẫu nhiên...' : orderDrawn ? 'Bốc thăm lại thứ tự' : 'Bốc thăm thứ tự lượt chơi'}
+              </button>
             </div>
-            <button className="start-group-game" disabled={!orderDrawn || isDrawing} onClick={startGame}>Bắt đầu trò chơi <ArrowRight /></button>
+            <button className="start-group-game" disabled={!orderDrawn || isDrawing} onClick={startGame}>
+              Bắt đầu trò chơi <ArrowRight />
+            </button>
           </div>
         </section>
       )}
@@ -1255,146 +1757,421 @@ function GamePage({ navigate }) {
       {stage === 'questions' && (
         <section className="group-game-shell question-stage">
           <header className="round-heading">
-            <div><div className="section-kicker light"><span>1</span> Vòng 1 · 10 câu cho mỗi nhóm</div><h1>Câu hỏi <em>{String(questionIndex + 1).padStart(2, '0')}</em></h1></div>
-            <div className="round-progress"><span>{questionIndex + 1} / {totalQuestions}</span><div><i style={{ width: `${((questionIndex + 1) / totalQuestions) * 100}%` }} /></div></div>
+            <div>
+              <div className="section-kicker light"><span>1</span> Vòng 1 · Khảo thí & Mở mảnh ghép</div>
+              <h1>Câu hỏi <em>{String(questionIndex + 1).padStart(2, '0')}</em></h1>
+            </div>
+            <div className="round-progress">
+              <span>{questionIndex + 1} / {totalQuestions} câu tổng ({currentRound + 1}/10 lượt)</span>
+              <div><i style={{ width: `${((questionIndex + 1) / totalQuestions) * 100}%` }} /></div>
+            </div>
           </header>
 
           <div className="team-scoreboard">
-            {teamOrder.map((teamIndex, orderIndex) => (
-              <div className={`${colors[teamIndex]} ${currentTeam === teamIndex ? 'active' : ''}`} key={teamIndex}>
-                <span className="team-dot mascot-dot" title={`Lượt ${orderIndex + 1}`}>{mascotOptions[teamMascots[teamIndex]].emoji}</span>
-                <div><strong>{teamNames[teamIndex] || `Nhóm ${teamIndex + 1}`}</strong><small>{collectedWords[teamIndex].length} mảnh ghép</small></div>
-                <b>{scores[teamIndex]}</b>
-              </div>
-            ))}
+            {teamOrder.map((teamIndex, orderIndex) => {
+              const count = collectedWords[teamIndex].length;
+              return (
+                <div className={`${colors[teamIndex]} ${currentTeam === teamIndex ? 'active' : ''}`} key={teamIndex}>
+                  <span className="team-dot mascot-dot" title={`Lượt ${orderIndex + 1}`}>{mascotOptions[teamMascots[teamIndex]].emoji}</span>
+                  <div className="team-score-info">
+                    <strong>{teamNames[teamIndex] || `Nhóm ${teamIndex + 1}`}</strong>
+                    <small>{count}/10 mảnh ghép</small>
+                    <div className="fragment-dots-row">
+                      {Array.from({ length: 10 }).map((_, dotIdx) => (
+                        <span
+                          key={dotIdx}
+                          className={`frag-dot ${collectedWords[teamIndex].includes(dotIdx) ? 'unlocked' : ''}`}
+                          title={`Mảnh ${dotIdx + 1}: ${collectedWords[teamIndex].includes(dotIdx) ? teamQuotes[teamIndex].fragments[dotIdx] : 'Chưa mở'}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <b>{scores[teamIndex]}</b>
+                </div>
+              );
+            })}
           </div>
 
           <div className="early-answer-bar">
-            <div><Sparkles /><span><strong>Đã đoán ra câu?</strong> Mỗi nhóm có một lượt trả lời tổng sớm trong 60 giây.</span></div>
-            <div>{teamOrder.map((teamIndex) => <button className={colors[teamIndex]} disabled={assemblyCompleted[teamIndex] || earlyAttemptUsed[teamIndex]} onClick={() => openEarlyAnswer(teamIndex)} key={teamIndex}>{assemblyCompleted[teamIndex] ? <><Check /> Đã giải</> : earlyAttemptUsed[teamIndex] ? <><Clock3 /> Đã thử</> : <>{mascotOptions[teamMascots[teamIndex]].emoji} Nhóm {teamIndex + 1} trả lời tổng</>}</button>)}</div>
+            <div><Sparkles /><span><strong>Đã đoán ra câu danh ngôn?</strong> Mỗi nhóm có một lượt trả lời tổng sớm (+500đ nếu chính xác).</span></div>
+            <div>
+              {teamOrder.map((teamIndex) => (
+                <button
+                  className={colors[teamIndex]}
+                  disabled={assemblyCompleted[teamIndex] || earlyAttemptUsed[teamIndex]}
+                  onClick={() => openEarlyAnswer(teamIndex)}
+                  key={teamIndex}
+                >
+                  {assemblyCompleted[teamIndex] ? <><Check /> Đã giải</> : earlyAttemptUsed[teamIndex] ? <><Clock3 /> Đã thử</> : <>{mascotOptions[teamMascots[teamIndex]].emoji} {teamNames[teamIndex] || `Nhóm ${teamIndex + 1}`} trả lời tổng</>}
+                </button>
+              ))}
+            </div>
           </div>
 
           <article className="group-question-card">
             <div className={`turn-card ${colors[currentTeam]}`}>
-              <small>Lượt trả lời</small>
+              <small>Đang đến lượt trả lời</small>
               <strong>{teamNames[currentTeam] || `Nhóm ${currentTeam + 1}`}</strong>
-              <div className="turn-mascot"><span>{mascotOptions[teamMascots[currentTeam]].emoji}</span><small>{mascotOptions[teamMascots[currentTeam]].name}</small></div>
-              <p>Trả lời đúng ngay lần đầu để nhận trọn <b>100 điểm</b>.</p>
-              <div className="hidden-word"><span>Mảnh ghép</span><strong>{feedback?.correct || feedback?.timeout ? currentFragment : '••••••••'}</strong></div>
+              <div className="turn-mascot">
+                <span>{mascotOptions[teamMascots[currentTeam]].emoji}</span>
+                <small>{mascotOptions[teamMascots[currentTeam]].name}</small>
+              </div>
+              <p>Trả lời đúng ngay lần đầu nhận trọn <b>100 điểm</b> & mở mảnh ghép.</p>
+              <div className="hidden-word">
+                <span>Mảnh ghép của câu này</span>
+                <strong>{feedback?.correct || feedback?.timeout ? currentFragment : '••••••••'}</strong>
+              </div>
             </div>
             <div className="group-question-main">
               <div className="question-meta-row">
-                <small>Câu hỏi dành cho {teamNames[currentTeam] || `Nhóm ${currentTeam + 1}`}</small>
+                <small>Câu {currentRound + 1}/10 dành cho {teamNames[currentTeam] || `Nhóm ${currentTeam + 1}`}</small>
                 <div className={`question-timer ${questionPhase === 'reading' ? 'reading' : ''} ${questionPhase === 'answering' && timeLeft <= 5 ? 'danger' : ''} ${feedback?.correct ? 'stopped' : ''}`}>
-                  <Clock3 /><strong>{questionPhase === 'reading' ? readingTimeLeft : timeLeft}</strong><span>{questionPhase === 'reading' ? 'đọc' : 'giây'}</span><div><i style={{ width: `${questionPhase === 'reading' ? (readingTimeLeft / 5) * 100 : (timeLeft / 20) * 100}%` }} /></div>
+                  <Clock3 />
+                  <strong>{questionPhase === 'reading' ? readingTimeLeft : timeLeft}</strong>
+                  <span>{questionPhase === 'reading' ? 'đọc đề' : 'giây'}</span>
+                  <div><i style={{ width: `${questionPhase === 'reading' ? (readingTimeLeft / 5) * 100 : (timeLeft / 20) * 100}%` }} /></div>
                 </div>
               </div>
               <h2>{currentQuestion.question}</h2>
-              {questionPhase === 'reading'
-                ? <div className="reading-answer-screen"><BookOpen /><div><strong>Thời gian đọc câu hỏi</strong><span>Đáp án sẽ mở sau {readingTimeLeft} giây</span></div></div>
-                : <div className="group-answer-grid">
-                    {currentQuestion.options.map((option, optionIndex) => (
-                      <button
-                        className={`${wrongOptions.includes(optionIndex) ? 'wrong' : ''} ${(feedback?.correct || feedback?.timeout) && optionIndex === currentQuestion.correct ? 'correct' : ''}`}
-                        disabled={feedback?.correct || feedback?.timeout || wrongOptions.includes(optionIndex)}
-                        onClick={() => answerQuestion(optionIndex)}
-                        key={option}
-                      ><span>{String.fromCharCode(65 + optionIndex)}</span>{option}{(feedback?.correct || feedback?.timeout) && optionIndex === currentQuestion.correct && <Check />}</button>
-                    ))}
-                  </div>}
-              {feedback && (
-                <div className={`group-feedback ${feedback.correct ? 'correct' : feedback.timeout ? 'timeout' : 'wrong'}`} aria-live="polite">
-                  {feedback.correct
-                    ? <><Check /><span><strong>Chính xác! +{feedback.points} điểm</strong>Mảnh ghép đã được đưa vào kho của nhóm.</span></>
-                    : feedback.timeout
-                      ? <><Clock3 /><span><strong>Hết 20 giây!</strong>Đáp án và mảnh ghép được công khai, nhóm không nhận điểm.</span></>
-                      : <><X /><span><strong>Chưa đúng, hãy thử lại!</strong>Điểm của câu hỏi sẽ giảm 25 điểm.</span></>}
+              {questionPhase === 'reading' ? (
+                <div className="reading-answer-screen">
+                  <BookOpen />
+                  <div>
+                    <strong>Thời gian đọc kỹ câu hỏi</strong>
+                    <span>4 đáp án sẽ mở tự động sau {readingTimeLeft} giây...</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="group-answer-grid">
+                  {currentQuestion.options.map((option, optionIndex) => (
+                    <button
+                      className={`${wrongOptions.includes(optionIndex) ? 'wrong' : ''} ${(feedback?.correct || feedback?.timeout) && optionIndex === currentQuestion.correct ? 'correct' : ''}`}
+                      disabled={feedback?.correct || feedback?.timeout || wrongOptions.includes(optionIndex)}
+                      onClick={() => answerQuestion(optionIndex)}
+                      key={option}
+                    >
+                      <span>{String.fromCharCode(65 + optionIndex)}</span>
+                      {option}
+                      {(feedback?.correct || feedback?.timeout) && optionIndex === currentQuestion.correct && <Check />}
+                    </button>
+                  ))}
                 </div>
               )}
-              <button className="next-group-question" disabled={!feedback?.correct && !feedback?.timeout} onClick={nextQuestion}>{questionIndex === totalQuestions - 1 ? 'Sang vòng ghép câu' : 'Chuyển lượt cho nhóm tiếp theo'} <ArrowRight /></button>
+              {feedback && (
+                <div className={`group-feedback ${feedback.correct ? 'correct' : feedback.timeout ? 'timeout' : 'wrong'}`} aria-live="polite">
+                  {feedback.correct ? (
+                    <><Check /><span><strong>Chính xác! +{feedback.points} điểm</strong>Mảnh ghép “{currentFragment}” đã được chuyển vào kho của nhóm.</span></>
+                  ) : feedback.timeout ? (
+                    <><Clock3 /><span><strong>Hết 20 giây!</strong>Đáp án đúng là {String.fromCharCode(65 + currentQuestion.correct)}. Mảnh ghép vẫn được mở, nhóm không có điểm.</span></>
+                  ) : (
+                    <><X /><span><strong>Chưa chính xác, hãy chọn lại!</strong>Mỗi lần sai điểm câu hỏi sẽ giảm 25 điểm.</span></>
+                  )}
+                </div>
+              )}
+              <button
+                className="next-group-question"
+                disabled={!feedback?.correct && !feedback?.timeout}
+                onClick={nextQuestion}
+              >
+                {questionIndex === totalQuestions - 1 ? 'Sang Vòng 2 Ghép câu' : 'Chuyển lượt cho nhóm tiếp theo'} <ArrowRight />
+              </button>
             </div>
           </article>
-
-          {earlyAnswerTeam !== null && (
-            <div className="early-answer-overlay" role="dialog" aria-modal="true" aria-label="Trả lời tổng sớm">
-              <div className={`early-answer-modal ${colors[earlyAnswerTeam]}`}>
-                <button className="early-close" onClick={closeEarlyAnswer} aria-label="Đóng"><X /></button>
-                <div className="early-modal-head"><span>Thử thách trả lời tổng</span><h2>{teamNames[earlyAnswerTeam] || `Nhóm ${earlyAnswerTeam + 1}`}</h2><p>Nhập đầy đủ câu mà nhóm dự đoán từ các mảnh đã thu thập.</p></div>
-                <div className={`early-timer ${earlyAnswerTime <= 10 ? 'danger' : ''}`}><Clock3 /><span>Thời gian còn lại</span><strong>{String(Math.floor(earlyAnswerTime / 60)).padStart(2, '0')}:{String(earlyAnswerTime % 60).padStart(2, '0')}</strong><div><i style={{ width: `${(earlyAnswerTime / 60) * 100}%` }} /></div></div>
-                <div className="early-collected"><small>Mảnh ghép nhóm đang có</small><div>{collectedWords[earlyAnswerTeam].length ? collectedWords[earlyAnswerTeam].map((id) => <span key={id}>{teamQuotes[earlyAnswerTeam].fragments[id]}</span>) : <em>Chưa có mảnh ghép nào — nhóm đang thử đoán!</em>}</div></div>
-                <label className="early-input"><span>Câu trả lời của nhóm</span><textarea disabled={earlyAnswerFeedback?.correct || earlyAnswerFeedback?.timeout} value={earlyAnswerText} onChange={(event) => { setEarlyAnswerText(event.target.value); if (earlyAnswerFeedback && !earlyAnswerFeedback.timeout) setEarlyAnswerFeedback(null); }} placeholder="Nhập câu hoàn chỉnh tại đây..." /></label>
-                {earlyAnswerFeedback && <div className={`early-result ${earlyAnswerFeedback.correct ? 'correct' : earlyAnswerFeedback.timeout ? 'timeout' : 'wrong'}`}>{earlyAnswerFeedback.correct ? <><Trophy /><div><strong>Chính xác! +300 điểm</strong><span>Nhóm đã hoàn thành câu trước thời hạn.</span></div></> : earlyAnswerFeedback.timeout ? <><Clock3 /><div><strong>Đã hết 60 giây</strong><span>Câu đúng: “{teamQuotes[earlyAnswerTeam].quote}”</span></div></> : <><X /><div><strong>Chưa chính xác</strong><span>Nhóm có thể sửa và kiểm tra lại trong thời gian còn lại.</span></div></>}</div>}
-                {earlyAnswerFeedback?.correct || earlyAnswerFeedback?.timeout
-                  ? <button className="early-submit" onClick={closeEarlyAnswer}>Tiếp tục trò chơi <ArrowRight /></button>
-                  : <button className="early-submit" disabled={!earlyAnswerText.trim()} onClick={submitEarlyAnswer}><Check /> Kiểm tra câu trả lời</button>}
-              </div>
-            </div>
-          )}
         </section>
       )}
 
       {stage === 'assemble' && (
         <section className="group-game-shell assembly-stage">
           <header className="assembly-heading">
-            <div className="section-kicker light"><span>2</span> Vòng 2 · Bốn nhóm ghép bốn câu</div>
+            <div className="section-kicker light"><span>2</span> Vòng 2 · Bốn nhóm ghép bốn câu danh ngôn</div>
             <h1>Mỗi nhóm hoàn thiện<br /><em>câu của mình</em></h1>
-            <p>Mỗi nhóm có 60 giây. Nhấn vào từng mảnh trong kho theo đúng thứ tự; nhấn lại mảnh trong câu để đưa nó về kho.</p>
+            <p>Mỗi nhóm có 60 giây. Nhấn vào từng mảnh ghép trong kho theo đúng thứ tự câu trích dẫn; nhấn lại mảnh ghép trong câu để trả về kho.</p>
           </header>
-          <div className={`assembly-timer ${assemblyTimeLeft <= 10 ? 'danger' : ''}`}><Clock3 /><span>Thời gian của {teamNames[activeAssemblyTeam] || `Nhóm ${activeAssemblyTeam + 1}`}</span><strong>{String(Math.floor(assemblyTimeLeft / 60)).padStart(2, '0')}:{String(assemblyTimeLeft % 60).padStart(2, '0')}</strong><div><i style={{ width: `${(assemblyTimeLeft / 60) * 100}%` }} /></div></div>
+          <div className={`assembly-timer ${assemblyTimeLeft <= 10 ? 'danger' : ''}`}>
+            <Clock3 />
+            <span>Thời gian ghép của {teamNames[activeAssemblyTeam] || `Nhóm ${activeAssemblyTeam + 1}`}</span>
+            <strong>{String(Math.floor(assemblyTimeLeft / 60)).padStart(2, '0')}:{String(assemblyTimeLeft % 60).padStart(2, '0')}</strong>
+            <div><i style={{ width: `${(assemblyTimeLeft / 60) * 100}%` }} /></div>
+          </div>
           <div className="assembly-team-tabs">
             {teamNames.map((name, index) => (
-              <button className={`${colors[index]} ${activeAssemblyTeam === index ? 'active' : ''} ${assemblyCompleted[index] ? 'completed' : ''}`} disabled={activeAssemblyTeam !== index || assemblyCompleted[index]} key={index}>
-                <span>0{index + 1}</span><strong>{name || `Nhóm ${index + 1}`}</strong>{assemblyCompleted[index] ? assemblyCorrect[index] ? <Check /> : <Clock3 /> : <small>{teamSentences[index].length}/10</small>}
+              <button
+                className={`${colors[index]} ${activeAssemblyTeam === index ? 'active' : ''} ${assemblyCompleted[index] ? 'completed' : ''}`}
+                disabled={activeAssemblyTeam !== index || assemblyCompleted[index]}
+                key={index}
+              >
+                <span>0{index + 1}</span>
+                <strong>{name || `Nhóm ${index + 1}`}</strong>
+                {assemblyCompleted[index] ? assemblyCorrect[index] ? <Check /> : <Clock3 /> : <small>{teamSentences[index].length}/10</small>}
               </button>
             ))}
           </div>
-          <div className="active-vault-label"><span>Đang ghép câu của</span><strong>{teamNames[activeAssemblyTeam] || `Nhóm ${activeAssemblyTeam + 1}`}</strong></div>
-          <div className={`sentence-dropzone ${assemblyError ? 'has-error' : ''} ${assemblyCompleted[activeAssemblyTeam] ? 'is-complete' : ''}`}>
-            {teamSentences[activeAssemblyTeam].length === 0 && <span className="drop-placeholder">Câu trả lời của nhóm sẽ xuất hiện ở đây...</span>}
-            {teamSentences[activeAssemblyTeam].map((id, index) => <button disabled={assemblyCompleted[activeAssemblyTeam]} onClick={() => removeWord(id)} key={`${activeAssemblyTeam}-${id}`}><small>{index + 1}</small>{teamQuotes[activeAssemblyTeam].fragments[id]}{!assemblyCompleted[activeAssemblyTeam] && <X />}</button>)}
+
+          <div className="active-vault-label-wrapper">
+            <div className="active-vault-label"><span>Đang ghép câu của</span><strong>{teamNames[activeAssemblyTeam] || `Nhóm ${activeAssemblyTeam + 1}`}</strong></div>
+            {teamSentences[activeAssemblyTeam].length > 0 && !assemblyCompleted[activeAssemblyTeam] && (
+              <button className="clear-sentence-btn" onClick={clearSentence} title="Xóa toàn bộ các từ đã chọn để sắp xếp lại">
+                <RotateCcw size={13} /> Xóa làm lại
+              </button>
+            )}
           </div>
-          {assemblyError && <div className="assembly-message"><X /> Thứ tự chưa chính xác. Hãy đọc lại câu và thử sắp xếp nhé!</div>}
+
+          <div className={`assembly-slots-rack ${assemblyError ? 'has-error' : ''} ${assemblyCompleted[activeAssemblyTeam] ? 'is-complete' : ''}`}>
+            {Array.from({ length: 10 }).map((_, slotIndex) => {
+              const fragmentId = teamSentences[activeAssemblyTeam][slotIndex];
+              const hasWord = fragmentId !== undefined;
+              return (
+                <div
+                  key={slotIndex}
+                  className={`assembly-slot ${hasWord ? 'filled' : 'empty'}`}
+                  onClick={() => {
+                    if (hasWord && !assemblyCompleted[activeAssemblyTeam]) {
+                      removeWord(fragmentId);
+                    }
+                  }}
+                  title={hasWord ? 'Bấm để trả về kho' : `Vị trí ${slotIndex + 1}`}
+                >
+                  <span className="slot-num">{String(slotIndex + 1).padStart(2, '0')}</span>
+                  {hasWord ? (
+                    <div className="slot-word">
+                      <strong>{teamQuotes[activeAssemblyTeam].fragments[fragmentId]}</strong>
+                      {!assemblyCompleted[activeAssemblyTeam] && <X size={11} />}
+                    </div>
+                  ) : (
+                    <span className="slot-placeholder">Vị trí {slotIndex + 1}</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {assemblyError && <div className="assembly-message"><X /> Thứ tự chưa chính xác. Hãy đọc kỹ ý nghĩa câu và thử sắp xếp lại nhé!</div>}
+
           <div className={`single-team-vault ${colors[activeAssemblyTeam]}`}>
-            <header><span>Kho chữ riêng · 10 mảnh</span><strong>{teamNames[activeAssemblyTeam] || `Nhóm ${activeAssemblyTeam + 1}`}</strong></header>
+            <header>
+              <span>Kho 10 mảnh ghép của nhóm (Bấm chọn theo thứ tự)</span>
+              <strong>{teamNames[activeAssemblyTeam] || `Nhóm ${activeAssemblyTeam + 1}`}</strong>
+            </header>
             <div>
               {teamQuotes[activeAssemblyTeam].shuffle.map((id) => (
-                <button className={teamSentences[activeAssemblyTeam].includes(id) ? 'used' : ''} disabled={teamSentences[activeAssemblyTeam].includes(id) || assemblyCompleted[activeAssemblyTeam]} onClick={() => addWord(id)} key={`${activeAssemblyTeam}-vault-${id}`}>
-                  <span>{teamQuotes[activeAssemblyTeam].fragments[id]}</span><small>Nhấn để chọn</small>
+                <button
+                  className={teamSentences[activeAssemblyTeam].includes(id) ? 'used' : ''}
+                  disabled={teamSentences[activeAssemblyTeam].includes(id) || assemblyCompleted[activeAssemblyTeam]}
+                  onClick={() => addWord(id)}
+                  key={`${activeAssemblyTeam}-vault-${id}`}
+                >
+                  <span>{teamQuotes[activeAssemblyTeam].fragments[id]}</span>
+                  <small>{teamSentences[activeAssemblyTeam].includes(id) ? 'Đã xếp' : 'Bấm chọn'}</small>
                 </button>
               ))}
             </div>
           </div>
-          <button className="check-sentence" disabled={teamSentences[activeAssemblyTeam].length !== 10} onClick={checkSentence}><Check /> Kiểm tra câu của nhóm</button>
+          <button
+            className="check-sentence"
+            disabled={teamSentences[activeAssemblyTeam].length !== 10}
+            onClick={checkSentence}
+          >
+            <Check /> Kiểm tra câu của nhóm
+          </button>
         </section>
       )}
 
       {stage === 'result' && (
         <section className="group-game-shell final-stage">
           <div className="result-medal"><Trophy /></div>
-          <div className="section-kicker light"><span>★</span>{gameEndReason === 'early' ? ' Trả lời tổng chính xác' : ' Hoàn thành thử thách'}</div>
-          <h1>{gameEndReason === 'early' && earlyWinnerTeam !== null ? <>{teamNames[earlyWinnerTeam] || `Nhóm ${earlyWinnerTeam + 1}`}<br /><em>giành chiến thắng!</em></> : assemblyCorrect.every(Boolean) ? <>Cả bốn nhóm<br /><em>đều thành công!</em></> : <>Đã hoàn thành<br /><em>thử thách!</em></>}</h1>
-          <div className={`final-quotes ${gameEndReason === 'early' ? 'early-all-quotes' : ''}`}>
-            {teamQuotes.map((item, index) => (
-              <blockquote className={`${colors[index]} ${gameEndReason === 'early' && earlyWinnerTeam === index ? 'decisive' : ''}`} key={item.quote}>
-                <span>{gameEndReason === 'early' ? mascotOptions[teamMascots[index]].emoji : assemblyCorrect[index] ? <Check /> : <Clock3 />}</span>
-                <div><small>{teamNames[index] || `Nhóm ${index + 1}`} · {gameEndReason === 'early' ? earlyWinnerTeam === index ? 'Trả lời đúng — câu quyết định' : 'Câu trả lời tổng' : assemblyCorrect[index] ? 'Ghép đúng' : 'Hết thời gian'}</small><p>“{item.quote}”</p></div>
-              </blockquote>
+          <div className="section-kicker light"><span>★</span>{gameEndReason === 'early' ? ' Trả lời tổng chính xác' : ' Hoàn thành xuất sắc'}</div>
+          <h1>
+            {gameEndReason === 'early' && earlyWinnerTeam !== null ? (
+              <>{teamNames[earlyWinnerTeam] || `Nhóm ${earlyWinnerTeam + 1}`}<br /><em>giành chiến thắng oanh liệt!</em></>
+            ) : assemblyCorrect.every(Boolean) ? (
+              <>Cả bốn đại đoàn<br /><em>đều toàn thắng!</em></>
+            ) : (
+              <>Hoàn thành<br /><em>hành trình lịch sử!</em></>
+            )}
+          </h1>
+
+          {/* Grand Victory Podium */}
+          <div className="victory-podium">
+            {/* 2nd Place (Silver) */}
+            {rankedTeams[1] && (
+              <div className={`podium-stand rank-2 ${colors[rankedTeams[1].teamIndex]}`}>
+                <div className="podium-team">
+                  <span className="podium-mascot">{mascotOptions[teamMascots[rankedTeams[1].teamIndex]].emoji}</span>
+                  <strong>{rankedTeams[1].name}</strong>
+                  <b>{rankedTeams[1].score} điểm</b>
+                </div>
+                <div className="podium-pillar pillar-2">
+                  <span className="podium-rank">2</span>
+                  <small>Hạng Nhì</small>
+                </div>
+              </div>
+            )}
+
+            {/* 1st Place (Gold) */}
+            {rankedTeams[0] && (
+              <div className={`podium-stand rank-1 ${colors[rankedTeams[0].teamIndex]}`}>
+                <div className="podium-crown"><Trophy size={28} /></div>
+                <div className="podium-team">
+                  <span className="podium-mascot">{mascotOptions[teamMascots[rankedTeams[0].teamIndex]].emoji}</span>
+                  <strong>{rankedTeams[0].name}</strong>
+                  <b>{rankedTeams[0].score} điểm</b>
+                </div>
+                <div className="podium-pillar pillar-1">
+                  <span className="podium-rank">1</span>
+                  <small>Vô Địch</small>
+                </div>
+              </div>
+            )}
+
+            {/* 3rd Place (Bronze) */}
+            {rankedTeams[2] && (
+              <div className={`podium-stand rank-3 ${colors[rankedTeams[2].teamIndex]}`}>
+                <div className="podium-team">
+                  <span className="podium-mascot">{mascotOptions[teamMascots[rankedTeams[2].teamIndex]].emoji}</span>
+                  <strong>{rankedTeams[2].name}</strong>
+                  <b>{rankedTeams[2].score} điểm</b>
+                </div>
+                <div className="podium-pillar pillar-3">
+                  <span className="podium-rank">3</span>
+                  <small>Hạng Ba</small>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="parchment-quotes-section">
+            <h3>4 Thông điệp Lịch sử được hoàn thiện</h3>
+            <div className={`final-quotes ${gameEndReason === 'early' ? 'early-all-quotes' : ''}`}>
+              {teamQuotes.map((item, index) => (
+                <blockquote className={`${colors[index]} ${gameEndReason === 'early' && earlyWinnerTeam === index ? 'decisive' : ''}`} key={item.quote}>
+                  <span>{gameEndReason === 'early' ? mascotOptions[teamMascots[index]].emoji : assemblyCorrect[index] ? <Check /> : <Clock3 />}</span>
+                  <div>
+                    <small>
+                      {teamNames[index] || `Nhóm ${index + 1}`} · {gameEndReason === 'early' ? earlyWinnerTeam === index ? 'Trả lời đúng — Câu quyết định' : 'Câu trả lời tổng' : assemblyCorrect[index] ? 'Ghép đúng hoàn chỉnh' : 'Hết thời gian'}
+                    </small>
+                    <p>“{item.quote}”</p>
+                  </div>
+                </blockquote>
+              ))}
+            </div>
+          </div>
+
+          <div className="ranking-title">
+            <span>Bảng tổng kết điểm số</span>
+            <button className="copy-results-btn" onClick={copyResults} title="Sao chép bảng kết quả">
+              <Copy size={13} /> {copyToast ? 'Đã sao chép vào Clipboard!' : 'Sao chép bảng thành tích'}
+            </button>
+          </div>
+          <div className="final-scoreboard">
+            {rankedTeams.map((team, rankIndex) => (
+              <div className={`${colors[team.teamIndex]} ${rankIndex === 0 ? 'winner' : ''}`} key={team.teamIndex}>
+                <small className="rank-number">Hạng {rankIndex + 1}</small>
+                <span className="final-mascot">{mascotOptions[teamMascots[team.teamIndex]].emoji}</span>
+                <strong>{team.name}</strong>
+                <b>{team.score} điểm</b>
+                {rankIndex === 0 && <Trophy />}
+              </div>
             ))}
           </div>
-          <div className="ranking-title"><span>Bảng xếp hạng chung cuộc</span><small>Sắp xếp theo tổng điểm</small></div>
-          <div className="final-scoreboard">
-            {rankedTeams.map((team, rankIndex) => <div className={`${colors[team.teamIndex]} ${rankIndex === 0 ? 'winner' : ''}`} key={team.teamIndex}><small className="rank-number">Hạng {rankIndex + 1}</small><span className="final-mascot">{mascotOptions[teamMascots[team.teamIndex]].emoji}</span><strong>{team.name}</strong><b>{team.score} điểm</b>{rankIndex === 0 && <Trophy />}</div>)}
+          <p className="winner-line">Đại đoàn dẫn đầu: <strong>{winners.join(' & ')}</strong></p>
+          <div className="result-actions">
+            <button onClick={restart}><RotateCcw /> Chơi lại ván mới</button>
+            <button className="accent" onClick={() => navigate('presentation')}>Về trang Thuyết trình <Flag size={14} fill="currentColor" /></button>
           </div>
-          <p className="winner-line">Dẫn đầu: <strong>{winners.join(' & ')}</strong></p>
-          <div className="result-actions"><button onClick={restart}><RotateCcw /> Chơi lại</button><button className="accent" onClick={() => navigate('quiz')}>Sang trang Quiz <BrainCircuit /></button></div>
         </section>
+      )}
+
+      {earlyAnswerTeam !== null && (
+        <div
+          className="early-answer-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Trả lời tổng sớm"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) closeEarlyAnswer();
+          }}
+        >
+          <div className={`early-answer-modal ${colors[earlyAnswerTeam]}`}>
+            <button className="early-close" onClick={closeEarlyAnswer} aria-label="Đóng"><X /></button>
+            <div className="early-modal-head">
+              <span>Thử thách trả lời tổng</span>
+              <h2>{teamNames[earlyAnswerTeam] || `Nhóm ${earlyAnswerTeam + 1}`}</h2>
+              <p>Nhập đầy đủ câu danh ngôn / đường lối mà nhóm dự đoán từ các mảnh đã thu thập.</p>
+            </div>
+            <div className={`early-timer ${earlyAnswerTime <= 10 ? 'danger' : ''}`}>
+              <Clock3 />
+              <span>Thời gian còn lại</span>
+              <strong>{String(Math.floor(earlyAnswerTime / 60)).padStart(2, '0')}:{String(earlyAnswerTime % 60).padStart(2, '0')}</strong>
+              <div><i style={{ width: `${(earlyAnswerTime / 60) * 100}%` }} /></div>
+            </div>
+            <div className="early-collected">
+              <small>Mảnh ghép nhóm đang có</small>
+              <div>
+                {collectedWords[earlyAnswerTeam].length ? (
+                  collectedWords[earlyAnswerTeam].map((id) => <span key={id}>{teamQuotes[earlyAnswerTeam].fragments[id]}</span>)
+                ) : (
+                  <em>Chưa có mảnh ghép nào — nhóm đang thử tài phán đoán!</em>
+                )}
+              </div>
+            </div>
+            <label className="early-input">
+              <span>Câu trả lời của nhóm</span>
+              <textarea
+                disabled={earlyAnswerFeedback?.correct || earlyAnswerFeedback?.timeout}
+                value={earlyAnswerText}
+                onChange={(event) => {
+                  setEarlyAnswerText(event.target.value);
+                  if (earlyAnswerFeedback && !earlyAnswerFeedback.timeout) setEarlyAnswerFeedback(null);
+                }}
+                placeholder="Nhập câu hoàn chỉnh tại đây..."
+                autoFocus
+              />
+            </label>
+            {earlyAnswerFeedback && (
+              <div className={`early-result ${earlyAnswerFeedback.correct ? 'correct' : earlyAnswerFeedback.timeout ? 'timeout' : 'wrong'}`}>
+                {earlyAnswerFeedback.correct ? (
+                  <>
+                    <Trophy />
+                    <div>
+                      <strong>Chính xác xuất sắc! +500 điểm</strong>
+                      <span>Nhóm đã giải mã thành công câu trích dẫn và giành chiến thắng sớm!</span>
+                    </div>
+                  </>
+                ) : earlyAnswerFeedback.timeout ? (
+                  <>
+                    <Clock3 />
+                    <div>
+                      <strong>Đã hết 60 giây</strong>
+                      <span>Câu đúng là: “{teamQuotes[earlyAnswerTeam].quote}”</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <X />
+                    <div>
+                      <strong>Chưa chính xác</strong>
+                      <span>Nhóm có thể chỉnh sửa và kiểm tra lại trong thời gian còn lại.</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+            {earlyAnswerFeedback?.correct || earlyAnswerFeedback?.timeout ? (
+              <button className="early-submit" onClick={closeEarlyAnswer}>Tiếp tục trò chơi <ArrowRight /></button>
+            ) : (
+              <button className="early-submit" disabled={!earlyAnswerText.trim()} onClick={submitEarlyAnswer}>
+                <Check /> Kiểm tra câu trả lời
+              </button>
+            )}
+          </div>
+        </div>
       )}
     </main>
   );
 }
 
 function App() {
-  const validPages = ['presentation', 'quiz', 'game'];
+  const validPages = ['presentation', 'game'];
   const getPage = () => {
     const hash = window.location.hash.replace('#', '');
     return validPages.includes(hash) ? hash : 'presentation';
@@ -1413,7 +2190,6 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (page === 'quiz') return <QuizPage navigate={navigate} />;
   if (page === 'game') return <GamePage navigate={navigate} />;
   return <PresentationPage navigate={navigate} />;
 }
