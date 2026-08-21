@@ -193,8 +193,8 @@ h1 em, h2 em { color: var(--gold); font-weight: 600; }
 .stat-card.major > svg, .stat-card.major span { color: #f1cf87; }
 .stat-card.major p { color: rgba(255,255,255,.65); }
 
-.campaign { display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(60px, 10vw, 155px); color: #fff; background: var(--forest); }
-.campaign-banner { grid-column: 1 / -1; margin: 0 0 10px; }
+.campaign { display: grid; grid-template-columns: .85fr 1.15fr; gap: clamp(40px, 6vw, 100px); color: #fff; background: var(--forest); scroll-margin-top: 100px; }
+.campaign-banner { grid-column: 1 / -1; margin: 0 0 16px; }
 .campaign-banner-frame { position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,.18); background: #0c1511; box-shadow: 0 28px 70px rgba(0,0,0,.28); }
 .campaign-banner-frame::before { position: absolute; z-index: 1; content: ''; inset: 12px; border: 1px solid rgba(255,255,255,.18); pointer-events: none; }
 .campaign-banner-frame::after { position: absolute; z-index: 1; content: ''; left: 0; top: 0; bottom: 0; width: 7px; background: var(--red); }
@@ -202,9 +202,9 @@ h1 em, h2 em { color: var(--gold); font-weight: 600; }
 .campaign-banner figcaption { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 16px 3px 0; }
 .campaign-banner figcaption span { color: var(--gold); font-size: 8px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
 .campaign-banner figcaption p { margin: 0; color: rgba(255,255,255,.4); font-size: 9px; letter-spacing: .05em; }
-.campaign-intro { align-self: start; position: sticky; top: 70px; }
+.campaign-intro { align-self: start; position: static; }
 .campaign h2 em { color: var(--gold); }
-.campaign-total { display: flex; align-items: center; gap: 14px; margin-top: 42px; color: rgba(255,255,255,.4); font-size: 12px; }
+.campaign-total { display: flex; align-items: center; gap: 14px; margin-top: 32px; color: rgba(255,255,255,.4); font-size: 12px; }
 .campaign-total strong { color: #fff; }
 .campaign-total span { color: var(--gold); }
 .phases { border-top: 1px solid rgba(255,255,255,.18); }
@@ -222,7 +222,7 @@ h1 em, h2 em { color: var(--gold); font-weight: 600; }
 .phase-body div span { margin-bottom: 8px; color: rgba(255,255,255,.35); font-size: 8px; text-transform: uppercase; letter-spacing: .12em; }
 .phase-body div strong { color: var(--gold); font: 600 15px 'Playfair Display', serif; }
 .phase-body p { margin: 0; color: rgba(255,255,255,.56); font-size: 11px; line-height: 1.8; }
-.victory-line { grid-column: 1 / -1; display: flex; align-items: center; gap: 18px; margin-top: 10px; padding: 25px 30px; color: #fff; background: var(--red); }
+.victory-line { grid-column: 1 / -1; display: flex; align-items: center; gap: 18px; margin-top: 30px; padding: 25px 30px; color: #fff; background: var(--red); position: relative; z-index: 1; }
 .victory-line > svg { color: #f0cc76; }
 .victory-line p, .victory-line strong, .victory-line span { display: block; margin: 0; }
 .victory-line strong { font: 600 18px 'Playfair Display', serif; }
