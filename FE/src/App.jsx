@@ -191,7 +191,7 @@ const strategicPoints = [
   },
   {
     id: 5,
-    title: 'Plây Cu (Bắc Tây Nguyên)',
+    title: 'Pleiku (Bắc Tây Nguyên)',
     code: 'p5',
     troops: 'Tháng 02.1954',
     desc: 'Ta tiến công giải phóng thị xã Kon Tum, bao vây Plây Cu, đập tan âm mưu đánh chiếm vùng tự do Liên khu 5 của địch.',
