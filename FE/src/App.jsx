@@ -1034,7 +1034,7 @@ function PresentationPage({ navigate }) {
           <p className="hero-lead">Chiến thắng không đến từ một trận đánh đơn lẻ. Đó là điểm kết tụ của <strong>tổ chức</strong>, <strong>chiến lược</strong> và <strong>sức mạnh toàn dân</strong>.</p>
           <div className="hero-actions">
             <button className="primary-button" onClick={() => goTo('luan-diem')}>Khám phá hành trình <ArrowDown size={17} /></button>
-            <span className="duration"><strong>04</strong><small>năm tạo thế<br />và tạo lực</small></span>
+            
           </div>
         </div>
         <div className="hero-caption"><span>01</span><p>Lá cờ chiến thắng —<br />Điện Biên Phủ, 1954</p></div>
