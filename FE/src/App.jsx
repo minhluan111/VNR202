@@ -900,27 +900,55 @@ function SiteHeader({ current, navigate }) {
 
 function FullPresentationContent() {
   const [activeChapter, setActiveChapter] = useState('boi-canh');
+  const isAutoScrolling = useRef(false);
+  const scrollTimeout = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPosition = window.scrollY + 220;
+      if (isAutoScrolling.current) return;
+      const topbar = document.querySelector('.topbar');
+      const topbarHeight = topbar ? topbar.offsetHeight : 72;
+      const storyNav = document.querySelector('.story-nav');
+      const storyNavHeight = storyNav ? storyNav.offsetHeight : 60;
+      const triggerOffset = topbarHeight + storyNavHeight + 100;
+
       for (let i = presentationChapters.length - 1; i >= 0; i--) {
         const chapter = presentationChapters[i];
         const el = document.getElementById(chapter.id);
-        if (el && el.offsetTop <= scrollPosition) {
-          setActiveChapter(chapter.id);
-          break;
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= triggerOffset) {
+            setActiveChapter(chapter.id);
+            break;
+          }
         }
       }
     };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    const activeBtn = document.querySelector('.story-nav button.active');
+    if (activeBtn) {
+      activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }, [activeChapter]);
+
   const jumpToChapter = (id) => {
+    SoundFx.playClick();
     setActiveChapter(id);
     const el = document.getElementById(id);
     if (!el) return;
+
+    isAutoScrolling.current = true;
+    if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+    scrollTimeout.current = setTimeout(() => {
+      isAutoScrolling.current = false;
+    }, 800);
+
     const topbar = document.querySelector('.topbar');
     const topbarHeight = topbar ? topbar.offsetHeight : 72;
     const storyNav = document.querySelector('.story-nav');
